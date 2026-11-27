@@ -82,15 +82,15 @@ fun BasicPanel(vm: EditorViewModel) {
         }
     }
 
-    PanelFrame("Basic", vm, height = 210.dp, left = {
+    PanelFrame("基础", vm, height = 210.dp, left = {
         Row(Modifier.clickable(onClick = ::reset).padding(vertical = 8.dp, horizontal = 2.dp), verticalAlignment = Alignment.CenterVertically) {
             Glyph(LucideIcons.RotateCcw, Palette.DockText, size = 18.dp)
             Spacer(Modifier.width(6.dp))
-            Text("Reset", style = Type.Body.copy(color = Palette.DockText))
+            Text("重置", style = Type.Body.copy(color = Palette.DockText))
         }
     }) {
         Row(Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            listOf("Position", "Zoom", "Rotate").forEachIndexed { i, t ->
+            listOf("位置", "缩放", "旋转").forEachIndexed { i, t ->
                 Text(
                     t,
                     style = Type.Body.copy(
@@ -104,8 +104,8 @@ fun BasicPanel(vm: EditorViewModel) {
         Column(Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.Center) {
             when (tab) {
                 0 -> {
-                    RulerRow("X axis", (x * 100).toFloat(), -300f..300f, { set("offsetX", it / 100.0, "basic-x") }, vm::endGesture)
-                    RulerRow("Y axis", (-y * 100).toFloat(), -300f..300f, { set("offsetY", -it / 100.0, "basic-y") }, vm::endGesture)
+                    RulerRow("水平位置", (x * 100).toFloat(), -300f..300f, { set("offsetX", it / 100.0, "basic-x") }, vm::endGesture)
+                    RulerRow("垂直位置", (-y * 100).toFloat(), -300f..300f, { set("offsetY", -it / 100.0, "basic-y") }, vm::endGesture)
                 }
                 1 -> RulerRow(null, (scale * 100).toFloat(), 5f..800f, { set("scale", it / 100.0, "basic-zoom") }, vm::endGesture, unit = "%")
                 else -> RulerRow(null, rotation.toFloat(), -180f..180f, { set("rotation", it.toDouble(), "basic-rotate") }, vm::endGesture, unit = "°")
