@@ -185,7 +185,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
         getApplication<Application>().getSharedPreferences(SETTINGS, android.content.Context.MODE_PRIVATE).edit().putFloat(PREVIEW_KEY, scale).apply()
     }
 
-    /** A long operation in progress, shown over the editor ("Importing"). */
+    /** A long operation in progress, shown over the editor ("正在导入素材"). */
     var busy: String? by mutableStateOf(null)
     /** Whether the video scopes show over the preview while grading. */
     var scopes by mutableStateOf(false)
@@ -240,7 +240,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     private fun startCollage(uris: List<Uri>) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Importing"
+            busy = "正在导入素材"
             val result = withContext(Threads.commands) {
                 runCatching {
                     val media = uris.take(9).map { uri -> s.import(Media.importUri(getApplication(), path, uri).absolutePath) }
@@ -283,7 +283,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     private fun startAutoCut(uris: List<Uri>) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Making your video"
+            busy = "正在制作视频"
             val result = withContext(Threads.commands) {
                 runCatching {
                     val ids = uris.take(20).map { uri -> s.import(Media.importUri(getApplication(), path, uri).absolutePath).id }
@@ -325,7 +325,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     private fun startBuiltin(id: String) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Laying out the template"
+            busy = "正在应用模板"
             val result = withContext(Threads.commands) {
                 runCatching {
                     val t = io.github.artcraftandroid.capcraft.core.builtinTemplates().first { it.id == id }
@@ -349,7 +349,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
                 val samples = runCatching { getApplication<Application>().assets.list("templates/$id")?.isNotEmpty() == true }.getOrDefault(false)
                 val behind = runCatching { JSONObject(s.extra("capcraftReel")).optJSONArray("behind") }.getOrNull()
                 if (samples && behind != null && behind.length() > 0) {
-                    busy = "Finding the people"
+                    busy = "正在识别人物"
                     for (i in 0 until behind.length()) io.github.artcraftandroid.capcraft.ui.editor.panels.putBehindPeople(this@EditorViewModel, behind.optString(i))
                     busy = null
                 }
@@ -362,13 +362,13 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
         val s = session ?: return
         val uri = uris.firstOrNull() ?: return
         viewModelScope.launch {
-            busy = "Reading the video"
+            busy = "正在读取视频"
             val file = withContext(Threads.commands) { runCatching { Media.importUri(getApplication(), path, uri) } }
             file.onFailure { busy = null; fail(it) }
             val video = file.getOrNull() ?: return@launch
             val listener = object : io.github.artcraftandroid.capcraft.core.SpeechListener {
                 override fun onProgress(fraction: Float, stage: String) {
-                    viewModelScope.launch { if (busy != null) busy = "Reading the video ${(fraction * 100).toInt()}%" }
+                    viewModelScope.launch { if (busy != null) busy = "正在读取视频 ${(fraction * 100).toInt()}%" }
                 }
 
                 override fun onDone(result: TimelineView?) {
@@ -485,7 +485,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     /** A `.cube` table picked on the phone made a filter of the user's own, named after the file; [then] gets its id. */
     fun importLook(uri: Uri, then: (String) -> Unit) {
         viewModelScope.launch {
-            busy = "Importing"
+            busy = "正在导入素材"
             val result = withContext(Threads.commands) {
                 runCatching {
                     val app = getApplication<Application>()
@@ -545,7 +545,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     fun addToMain(uris: List<Uri>, atEnd: Boolean = false, after: () -> Unit = {}) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Importing"
+            busy = "正在导入素材"
             val result = withContext(Threads.commands) {
                 runCatching {
                     val ids = uris.map { uri ->
@@ -612,7 +612,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     fun addFile(uri: Uri, asAudio: Boolean) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Importing"
+            busy = "正在导入素材"
             val result = withContext(Threads.commands) {
                 runCatching {
                     val file = Media.importUri(getApplication(), path, uri)
@@ -1060,7 +1060,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     fun replace(clip: ClipView, uri: Uri) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Importing"
+            busy = "正在导入素材"
             val result = withContext(Threads.commands) {
                 runCatching {
                     val file = Media.importUri(getApplication(), path, uri)
@@ -1076,10 +1076,10 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     /** Makes the video clips [ids] one, rendered as they look; says how far along it is meanwhile. */
     fun compound(ids: List<String>) {
         val s = session ?: return
-        busy = "Making a compound clip"
+        busy = "正在创建复合片段"
         val listener = object : io.github.artcraftandroid.capcraft.core.CompoundListener {
             override fun onProgress(fraction: Float) {
-                viewModelScope.launch { if (busy != null) busy = "Making a compound clip ${(fraction * 100).toInt()}%" }
+                viewModelScope.launch { if (busy != null) busy = "正在创建复合片段 ${(fraction * 100).toInt()}%" }
             }
 
             override fun onDone(view: TimelineView) {
@@ -1106,7 +1106,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     fun playLive(clip: ClipView) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Looking for the video"
+            busy = "正在查找视频"
             val result = withContext(Threads.commands) {
                 runCatching { io.github.artcraftandroid.capcraft.engine.LivePhoto.takeOut(java.io.File(clip.path))?.let { s.replaceMedia(clip.id, it.absolutePath) } }
             }
@@ -1124,7 +1124,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     fun reverse(clip: ClipView) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Reversing"
+            busy = "正在倒放处理"
             val result = withContext(Threads.commands) { runCatching { s.reverse(clip.id) } }
             busy = null
             result.onSuccess { timeline = it; scheduleSave() }.onFailure { fail(it) }
@@ -1140,7 +1140,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
             return
         }
         viewModelScope.launch {
-            busy = "Remixing to fit"
+            busy = "正在调整音频长度"
             val result = withContext(Threads.commands) { runCatching { s.remixToFit(clip.id, end - clip.startUs) } }
             busy = null
             result.onSuccess {
@@ -1155,7 +1155,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     fun autoDuck(clip: ClipView) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Listening for voices"
+            busy = "正在识别人声"
             val result = withContext(Threads.commands) { runCatching { s.autoDuck(clip.id, 12.0) } }
             busy = null
             result.onSuccess {
@@ -1170,7 +1170,7 @@ class EditorViewModel(app: Application, val path: String) : AndroidViewModel(app
     fun splitScenes(clip: ClipView) {
         val s = session ?: return
         viewModelScope.launch {
-            busy = "Finding scenes"
+            busy = "正在识别场景"
             val before = timeline?.rows?.sumOf { it.clips.size } ?: 0
             val result = withContext(Threads.commands) { runCatching { s.splitAtScenes(clip.id) } }
             busy = null
