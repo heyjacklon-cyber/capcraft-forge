@@ -349,7 +349,7 @@ private fun PreparingBadge(vm: EditorViewModel, modifier: Modifier) {
     ) {
         CircularProgressIndicator(color = Palette.Accent, modifier = Modifier.size(11.dp), strokeWidth = 1.5.dp)
         Spacer(Modifier.width(7.dp))
-        Text("Preparing clips · ${s.ready} of ${s.total} ready", style = Type.Small.copy(fontSize = 11.sp, color = Palette.Text))
+        Text("正在准备素材 · ${s.ready}/${s.total} 已就绪", style = Type.Small.copy(fontSize = 11.sp, color = Palette.Text))
     }
 }
 
