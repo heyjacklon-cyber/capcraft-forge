@@ -98,7 +98,7 @@ fun LayerAdjustPanel(vm: EditorViewModel) {
             Row(Modifier.clickable(onClick = ::reset).padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Glyph(LucideIcons.RotateCcw, Palette.DockText, size = 18.dp)
                 Spacer(Modifier.width(6.dp))
-                Text("Reset", style = Type.Body.copy(color = Palette.DockText))
+                Text("重置", style = Type.Body.copy(color = Palette.DockText))
             }
         },
     ) {
@@ -107,7 +107,7 @@ fun LayerAdjustPanel(vm: EditorViewModel) {
             verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
         ) {
             if (knobs.isEmpty()) {
-                Text("This effect has nothing to set", style = Type.Small, modifier = Modifier.align(Alignment.CenterHorizontally))
+                Text("此特效无需调整参数", style = Type.Small, modifier = Modifier.align(Alignment.CenterHorizontally))
             }
             knobs.forEach { knob ->
                 key(knob.key) {
