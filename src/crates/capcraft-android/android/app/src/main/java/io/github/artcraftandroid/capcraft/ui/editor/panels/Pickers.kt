@@ -173,10 +173,10 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
     var keptTab by remember { mutableStateOf(false) }
     val kept = remember(Favorites.version.intValue, kind) { if (keepable) Favorites.of(context, kind) else emptySet() }
     fun keep(p: PackageInfo) {
-        vm.message = if (Favorites.toggle(context, kind, p.id)) "Added to favorites" else "Removed from favorites"
+        vm.message = if (Favorites.toggle(context, kind, p.id)) "已添加到收藏" else "已从收藏移除"
     }
     val shown = when {
-        query.isNotBlank() -> all.filter { it.name.contains(query.trim(), ignoreCase = true) }
+        query.isNotBlank() -> all.filter { (it.name.contains(query.trim(), ignoreCase = true) || zhPackage(it.id, it.name).contains(query.trim(), ignoreCase = true)) }
         keptTab -> all.filter { it.id in kept }
         category == 0 -> all
         else -> all.filter { it.category == categories.getOrNull(category) }
@@ -241,12 +241,12 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
     removing?.let { look ->
         ConfirmDialog(
             "Remove “${look.name}”?",
-            "Remove",
+            "移除",
             destructive = true,
             onDismiss = { removing = null },
             content = {
                 Text(
-                    "Clips that use it go back to their own colours.",
+                    "使用此滤镜的片段将恢复原有色彩。",
                     style = Type.Small.copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center),
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -269,7 +269,7 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
                 if (searching) {
                     Box(Modifier.weight(1f)) { SearchField(ownQuery, { ownQuery = it }, "Search filters", autoFocus = true) }
                     Text(
-                        "Cancel",
+                        "取消",
                         style = Type.Body.copy(color = Palette.DockText),
                         modifier = Modifier.clickable { ownQuery = ""; searching = false }.padding(horizontal = 12.dp, vertical = 8.dp),
                     )
@@ -300,7 +300,7 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
         }
         if (keptTab && query.isBlank() && shown.isEmpty()) {
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                Text("Press and hold one to keep it here", style = Type.Small)
+                Text("长按即可收藏", style = Type.Small)
             }
             return@run
         }
@@ -312,7 +312,7 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
                         Glyph(LucideIcons.CircleSlash, Palette.TextSecondary, size = 26.dp)
                     }
                 } else {
-                    GridTile("None", current == null, onClick = { apply(null) }) {
+                    GridTile("无", current == null, onClick = { apply(null) }) {
                         Glyph(LucideIcons.CircleSlash, Palette.TextSecondary, size = 26.dp)
                     }
                 }
@@ -320,7 +320,7 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
                 val p = shown[i - none]
                 val picture = rememberPreview(vm, p.id)
                 val onLongClick = if (p.id.startsWith("user.")) ({ removing = p }) else ({ keep(p) })
-                FilterTile(p.name, current == p.id, onClick = { apply(p) }, band = remember(picture) { picture?.let(::bandColour) }, onLongClick = onLongClick) {
+                FilterTile(zhPackage(p.id, p.name), current == p.id, onClick = { apply(p) }, band = remember(picture) { picture?.let(::bandColour) }, onLongClick = onLongClick) {
                     PreviewPicture(picture, p.id)
                     if (p.id in kept) KeptMark()
                 }
@@ -329,7 +329,7 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
                 // a chosen effect with settings of its own offers Adjust on its tile
                 val adjustable = kind == "effect" && onClip && current == p.id && adjustable(p).isNotEmpty()
                 GridTile(
-                    p.name,
+                    zhPackage(p.id, p.name),
                     current == p.id,
                     onClick = { if (adjustable) adjusting = true else apply(p) },
                     onLongClick = if (keepable) ({ keep(p) }) else null,
@@ -349,7 +349,7 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
                             verticalArrangement = Arrangement.Center,
                         ) {
                             Glyph(LucideIcons.SlidersHorizontal, Color.White, size = 20.dp)
-                            Text("Adjust", style = Type.Small.copy(color = Color.White, fontSize = 11.sp))
+                            Text("调整", style = Type.Small.copy(color = Color.White, fontSize = 11.sp))
                         }
                     }
                 }
@@ -393,7 +393,7 @@ private fun ColumnScope.PackagesContent(vm: EditorViewModel, kind: String, targe
                 Row(Modifier.clickable { filterToAll(vm, clip.id, ids) }.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Glyph(LucideIcons.Layers, Palette.DockText, size = 18.dp)
                     Spacer(Modifier.width(6.dp))
-                    Text("Apply to all", style = Type.Body.copy(color = Palette.DockText))
+                    Text("应用到全部", style = Type.Body.copy(color = Palette.DockText))
                 }
             }
         }
@@ -438,7 +438,7 @@ private fun ColumnScope.EffectAdjust(vm: EditorViewModel, clipId: String, p: Pac
     Row(Modifier.fillMaxWidth().height(46.dp).clickable(onClick = onBack).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Glyph(LucideIcons.ChevronLeft, Palette.DockText, size = 20.dp, description = "Back")
         Spacer(Modifier.width(6.dp))
-        Text(p.name, style = Type.BodyStrong)
+        Text(zhPackage(p.id, p.name), style = Type.BodyStrong)
     }
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         adjustable(p).forEach { knob ->
@@ -459,7 +459,7 @@ private fun ColumnScope.EffectAdjust(vm: EditorViewModel, clipId: String, p: Pac
                         held = null
                         vm.endGesture()
                     },
-                    title = knob.label,
+                    title = zhLabel(knob.label),
                 )
             }
         }
@@ -812,7 +812,7 @@ private fun ColumnScope.AdjustContent(vm: EditorViewModel) {
         val id = target?.id ?: run { vm.message = "Choose a clip first"; return }
         val s = vm.session ?: return
         scope.launch {
-            vm.busy = "Saving the LUT"
+            vm.busy = "正在保存 LUT"
             val result = withContext(Threads.commands) {
                 runCatching {
                     val folder = java.io.File(context.cacheDir, "exports").apply { mkdirs() }
@@ -950,7 +950,7 @@ private fun ColumnScope.AdjustContent(vm: EditorViewModel) {
             // how much of what the smart tool worked out is on
             val base = found?.takeIf { it.first == "${target?.id}:$which" }?.second
             when {
-                reading -> Text("Reading the picture…", style = Type.Small, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp))
+                reading -> Text("正在读取画面…", style = Type.Small, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp))
                 base != null -> ValueSlider(
                     value = strength,
                     range = 0f..100f,
@@ -986,30 +986,30 @@ private fun ColumnScope.AdjustContent(vm: EditorViewModel) {
             Row(Modifier.clickable(onClick = ::reset).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Glyph(LucideIcons.RotateCcw, Palette.DockText, size = 18.dp)
                 Spacer(Modifier.width(6.dp))
-                Text("Reset", style = Type.Body.copy(color = Palette.DockText))
+                Text("重置", style = Type.Body.copy(color = Palette.DockText))
             }
             Spacer(Modifier.width(12.dp))
             Row(Modifier.clickable(onClick = ::applyToAll).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Glyph(LucideIcons.Layers, Palette.DockText, size = 18.dp)
                 Spacer(Modifier.width(6.dp))
-                Text("Apply to all", style = Type.Body.copy(color = Palette.DockText))
+                Text("应用到全部", style = Type.Body.copy(color = Palette.DockText))
             }
             Spacer(Modifier.width(12.dp))
             Row(Modifier.clickable { vm.scopes = !vm.scopes }.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Glyph(LucideIcons.Activity, if (vm.scopes) Palette.Accent else Palette.DockText, size = 18.dp)
                 Spacer(Modifier.width(6.dp))
-                Text("Scopes", style = Type.Body.copy(color = if (vm.scopes) Palette.Accent else Palette.DockText))
+                Text("示波器", style = Type.Body.copy(color = if (vm.scopes) Palette.Accent else Palette.DockText))
             }
             Spacer(Modifier.width(12.dp))
             Row(Modifier.clickable(onClick = ::saveLut).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Glyph(LucideIcons.Palette, Palette.DockText, size = 18.dp)
                 Spacer(Modifier.width(6.dp))
-                Text("Save LUT", style = Type.Body.copy(color = Palette.DockText))
+                Text("保存 LUT", style = Type.Body.copy(color = Palette.DockText))
             }
             Row(Modifier.clickable(onClick = ::savePreset).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Glyph(LucideIcons.Bookmark, Palette.DockText, size = 18.dp)
                 Spacer(Modifier.width(6.dp))
-                Text("Save preset", style = Type.Body.copy(color = Palette.DockText))
+                Text("保存预设", style = Type.Body.copy(color = Palette.DockText))
             }
         }
     }
