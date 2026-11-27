@@ -420,9 +420,9 @@ private fun LookChip(l: CaptionLook, selected: Boolean, onClick: () -> Unit) {
                 shadow = if (l.shadow) androidx.compose.ui.graphics.Shadow(Color(0xCC000000), androidx.compose.ui.geometry.Offset(2f, 3f), 6f) else null,
             )
             if (l.stroke != null) {
-                Text("Hi there", style = base.copy(color = Color(android.graphics.Color.parseColor(l.stroke)), drawStyle = Stroke(width = 5f), shadow = null))
+                Text("你好", style = base.copy(color = Color(android.graphics.Color.parseColor(l.stroke)), drawStyle = Stroke(width = 5f), shadow = null))
             }
-            Text("Hi there", style = base.copy(color = colour))
+            Text("你好", style = base.copy(color = colour))
         }
     }
 }
