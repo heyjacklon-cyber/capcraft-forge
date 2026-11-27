@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: zh-cn-apk-${{ github.ref }}
@@ -92,3 +92,16 @@ jobs:
           path: dist/capcraft-forge-zh-CN-arm64.apk
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish Chinese APK release
+        if: github.ref == 'refs/heads/feature/zh-CN'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="zh-cn-build-${GITHUB_RUN_NUMBER}"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/capcraft-forge-zh-CN-arm64.apk --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" dist/capcraft-forge-zh-CN-arm64.apk --target "$GITHUB_SHA" --title "CapCraft Forge Chinese APK - build ${GITHUB_RUN_NUMBER}" --notes "Simplified Chinese ARM64 test build. Device testing pending. Source: ${GITHUB_SHA}" --prerelease --repo "$GITHUB_REPOSITORY"
+          fi
+          echo "Release: https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag" >> "$GITHUB_STEP_SUMMARY"
