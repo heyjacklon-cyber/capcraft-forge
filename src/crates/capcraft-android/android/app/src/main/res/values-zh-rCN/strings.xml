@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CapCraft Forge</string>
+    <string name="share_label">使用 CapCraft Forge 编辑</string>
+    <string name="widget_description">新建视频、编辑照片或开始录屏</string>
+    <string name="widget_new">新建视频</string>
+    <string name="widget_photo">编辑照片</string>
+    <string name="widget_shoot">拍摄</string>
+    <string name="widget_record">屏幕录制</string>
+</resources>
