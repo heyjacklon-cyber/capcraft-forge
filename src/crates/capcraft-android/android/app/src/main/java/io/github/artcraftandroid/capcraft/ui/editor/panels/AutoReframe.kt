@@ -59,7 +59,7 @@ fun AutoReframePanel(vm: EditorViewModel) {
     val listener = remember {
         object : SpeechListener {
             override fun onProgress(fraction: Float, stage: String) {
-                scope.launch(Dispatchers.Main) { job = (if (stage == "download") "Downloading the model" else "Finding the person") to fraction }
+                scope.launch(Dispatchers.Main) { job = (if (stage == "download") "正在下载模型" else "正在识别人物") to fraction }
             }
 
             override fun onDone(result: TimelineView?) {
@@ -67,7 +67,7 @@ fun AutoReframePanel(vm: EditorViewModel) {
                     job = null
                     result?.let { vm.applyView(it) }
                     vm.panel = null
-                    vm.message = "Reframed"
+                    vm.message = "已重新构图"
                 }
             }
 
@@ -84,7 +84,7 @@ fun AutoReframePanel(vm: EditorViewModel) {
         if (job != null) return
         val (w, h) = SHAPES[chosen].second
         val (fw, fh) = frameFor(w, h)
-        job = "Finding the person" to 0f
+        job = "正在识别人物" to 0f
         vm.stop()
         scope.launch(Threads.commands) {
             runCatching {
@@ -93,7 +93,7 @@ fun AutoReframePanel(vm: EditorViewModel) {
             }.onFailure { e -> launch(Dispatchers.Main) { job = null; vm.message = e.userMessage } }
         }
     }
-    PanelFrame("Auto reframe", vm, height = 250.dp, titleOnTop = true) {
+    PanelFrame("智能跟踪构图", vm, height = 250.dp, titleOnTop = true) {
         Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), verticalAlignment = Alignment.Bottom) {
                 SHAPES.forEachIndexed { i, (label, r) ->
@@ -123,7 +123,7 @@ fun AutoReframePanel(vm: EditorViewModel) {
                         Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(running.second.coerceIn(0f, 1f)).height(40.dp).background(Palette.Accent.copy(alpha = 0.5f)))
                     }
                     Text(
-                        if (running == null) "Reframe" else "${(running.second * 100).roundToInt()}%",
+                        if (running == null) "重新构图" else "${(running.second * 100).roundToInt()}%",
                         style = Type.BodyStrong.copy(fontSize = 15.sp, color = Color.White),
                     )
                 }
