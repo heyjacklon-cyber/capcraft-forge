@@ -109,7 +109,7 @@ private fun drawn(patch: Patch): ImageBitmap {
     return Bitmap.createBitmap(pixels, patch.maskWidth.toInt(), patch.maskHeight.toInt(), Bitmap.Config.ARGB_8888).asImageBitmap()
 }
 
-/** What a found thing is called: "Person 2" where there are more of its kind. */
+/** What a found thing is called: "人物 2" where there are more of its kind. */
 private fun nameOf(things: List<Thing>, index: Int): String {
     val thing = things[index]
     val name = thing.kind.replaceFirstChar { it.uppercase() }
@@ -123,7 +123,7 @@ private fun listen(vm: EditorViewModel, found: (List<Thing>) -> Unit = {}, outli
     }
 
     override fun onProgress(fraction: Float, stage: String) = main {
-        Erasing.job = if (stage == "download") "Downloading the model" to fraction else doing to -1f
+        Erasing.job = if (stage == "download") "正在下载模型" to fraction else doing to -1f
     }
 
     override fun onFound(things: List<Thing>) = main {
@@ -147,9 +147,9 @@ private fun listen(vm: EditorViewModel, found: (List<Thing>) -> Unit = {}, outli
 
 private fun find(vm: EditorViewModel, clip: ClipView) {
     val s = vm.session ?: return
-    Erasing.job = "Looking for people" to -1f
+    Erasing.job = "正在识别人物" to -1f
     val path = clip.path
-    val listener = listen(vm, found = { if (Erasing.path == path) Erasing.things = it.take(MOST_THINGS) }, failed = { Erasing.things = emptyList() }, doing = "Looking for people")
+    val listener = listen(vm, found = { if (Erasing.path == path) Erasing.things = it.take(MOST_THINGS) }, failed = { Erasing.things = emptyList() }, doing = "正在识别人物")
     vm.viewModelScope.launch(Threads.commands) {
         runCatching { s.findThings(clip.id, listener) }.onFailure { e ->
             withContext(Dispatchers.Main) { Erasing.job = null; Erasing.things = emptyList(); vm.message = e.userMessage }
@@ -165,8 +165,8 @@ private fun toggle(vm: EditorViewModel, clip: ClipView, index: Int) {
     val thing = Erasing.things?.getOrNull(index) ?: return
     val path = clip.path
     Erasing.asked = index
-    Erasing.job = "Finding the outline" to -1f
-    val listener = listen(vm, outline = { patch -> if (Erasing.path == path) Erasing.picked[index] = Marked(patch, drawn(patch)) }, doing = "Finding the outline")
+    Erasing.job = "正在识别轮廓" to -1f
+    val listener = listen(vm, outline = { patch -> if (Erasing.path == path) Erasing.picked[index] = Marked(patch, drawn(patch)) }, doing = "正在识别轮廓")
     vm.viewModelScope.launch(Threads.commands) {
         runCatching { s.outlineThing(clip.id, thing, listener) }.onFailure { e ->
             withContext(Dispatchers.Main) { Erasing.job = null; Erasing.asked = null; vm.message = e.userMessage }
@@ -179,8 +179,8 @@ private fun choose(vm: EditorViewModel, clip: ClipView, at: Offset) {
     if (Erasing.job != null) return
     val s = vm.session ?: return
     val path = clip.path
-    Erasing.job = "Finding the outline" to -1f
-    val listener = listen(vm, outline = { patch -> if (Erasing.path == path) Erasing.extra.add(Marked(patch, drawn(patch))) }, doing = "Finding the outline")
+    Erasing.job = "正在识别轮廓" to -1f
+    val listener = listen(vm, outline = { patch -> if (Erasing.path == path) Erasing.extra.add(Marked(patch, drawn(patch))) }, doing = "正在识别轮廓")
     vm.viewModelScope.launch(Threads.commands) {
         runCatching { s.outlineAt(clip.id, at.x, at.y, listener) }.onFailure { e ->
             withContext(Dispatchers.Main) { Erasing.job = null; vm.message = e.userMessage }
@@ -193,17 +193,17 @@ private fun remove(vm: EditorViewModel, clip: ClipView) {
     val s = vm.session ?: return
     val patches = Erasing.chosen.map { it.patch }
     if (patches.isEmpty() || Erasing.job != null) return
-    Erasing.job = "Removing" to 0f
+    Erasing.job = "正在移除" to 0f
     val listener = object : SpeechListener {
         override fun onProgress(fraction: Float, stage: String) {
-            vm.viewModelScope.launch(Dispatchers.Main) { Erasing.job = (if (stage == "download") "Downloading the model" else "Removing") to fraction }
+            vm.viewModelScope.launch(Dispatchers.Main) { Erasing.job = (if (stage == "download") "正在下载模型" else "正在移除") to fraction }
         }
 
         override fun onDone(result: TimelineView?) {
             vm.viewModelScope.launch(Dispatchers.Main) {
                 Erasing.job = null
                 if (result != null) vm.applyView(result)
-                vm.message = if (patches.size == 1) "Removed" else "${patches.size} removed"
+                vm.message = if (patches.size == 1) "已移除" else "${patches.size} removed"
             }
         }
 
@@ -226,7 +226,7 @@ private fun lift(vm: EditorViewModel, clip: ClipView) {
     val s = vm.session ?: return
     val patches = Erasing.chosen.map { it.patch }
     if (patches.isEmpty() || Erasing.job != null) return
-    Erasing.job = "Putting it over the video" to -1f
+    Erasing.job = "正在叠加到视频" to -1f
     vm.viewModelScope.launch {
         val result = withContext(Threads.commands) {
             runCatching {
@@ -238,7 +238,7 @@ private fun lift(vm: EditorViewModel, clip: ClipView) {
         Erasing.job = null
         result.onSuccess { v ->
             if (v != null) vm.applyView(v)
-            vm.message = if (patches.size == 1) "Added to the overlay" else "${patches.size} added to the overlay"
+            vm.message = if (patches.size == 1) "已添加到叠加层" else "${patches.size} added to the overlay"
         }.onFailure { vm.message = it.userMessage }
     }
 }
@@ -253,7 +253,7 @@ fun EraseObjectsPanel(vm: EditorViewModel) {
     val clip = vm.selectedClip ?: run { vm.panel = null; return }
     if (clip.kind != "image") {
         vm.panel = null
-        vm.message = "This works on photos. Freeze a frame of the video first"
+        vm.message = "此功能适用于照片，请先将视频画面定格为照片。"
         return
     }
     val toFetch = remember(clip.path) { runCatching { objectsDownload().toLong() }.getOrDefault(0L) }
@@ -277,10 +277,10 @@ fun EraseObjectsPanel(vm: EditorViewModel) {
         }
     }
     val chosen = Erasing.chosen.size
-    PanelFrame("Remove objects", vm, height = 300.dp, left = {
+    PanelFrame("移除物体", vm, height = 300.dp, left = {
         if (chosen > 0 && Erasing.job == null) {
             Text(
-                "Clear",
+                "清除",
                 style = Type.Small.copy(color = Palette.DockText),
                 modifier = Modifier.clickable { Erasing.picked.clear(); Erasing.extra.clear() }.padding(8.dp),
             )
@@ -302,19 +302,19 @@ fun EraseObjectsPanel(vm: EditorViewModel) {
         ) {
             val things = Erasing.things
             if (things != null && things.isEmpty()) {
-                Text("No people found. Tap or paint over anything in the photo.", style = Type.Small, modifier = Modifier.padding(vertical = 6.dp))
+                Text("未识别到人物。请点击或涂抹照片中需要移除的对象。", style = Type.Small, modifier = Modifier.padding(vertical = 6.dp))
             }
             things?.forEachIndexed { i, _ ->
                 Pill(nameOf(things, i), i in Erasing.picked, dim = Erasing.asked == i) { toggle(vm, clip, i) }
             }
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Pill("Tap", !Erasing.painting) { Erasing.painting = false }
+            Pill("点选", !Erasing.painting) { Erasing.painting = false }
             Spacer(Modifier.width(8.dp))
-            Pill("Paint", Erasing.painting) { Erasing.painting = true }
+            Pill("涂抹", Erasing.painting) { Erasing.painting = true }
             Spacer(Modifier.weight(1f))
             val people = Erasing.things.orEmpty().indices.filter { Erasing.things!![it].kind == "person" }
-            if (people.size > 1) Pill("All people", people.all { it in Erasing.picked }) { chooseAll(vm, clip, people) }
+            if (people.size > 1) Pill("所有人物", people.all { it in Erasing.picked }) { chooseAll(vm, clip, people) }
         }
         if (Erasing.painting) {
             ValueSlider(
@@ -323,11 +323,11 @@ fun EraseObjectsPanel(vm: EditorViewModel) {
                 label = { "${it.roundToInt()}" },
                 onChange = { Erasing.brush = it / 100f },
                 onDone = {},
-                title = "Size",
+                title = "画笔大小",
             )
         } else {
             Text(
-                "Tap people or things in the photo, or in the list.",
+                "点击照片中的人物或物体，也可以从列表中选择。",
                 style = Type.Small.copy(color = Palette.TextSecondary),
                 modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
             )
@@ -338,8 +338,8 @@ fun EraseObjectsPanel(vm: EditorViewModel) {
             if (job != null) {
                 WideButton(job.first + if (job.second >= 0f) "  ${(job.second * 100).roundToInt()}%" else "", enabled = false) {}
             } else {
-                Box(Modifier.weight(1f)) { WideButton(if (chosen > 1) "Remove ($chosen)" else "Remove", chosen > 0) { remove(vm, clip) } }
-                Box(Modifier.weight(1f)) { WideButton(if (chosen > 1) "To overlay ($chosen)" else "To overlay", chosen > 0) { lift(vm, clip) } }
+                Box(Modifier.weight(1f)) { WideButton(if (chosen > 1) "Remove ($chosen)" else "移除", chosen > 0) { remove(vm, clip) } }
+                Box(Modifier.weight(1f)) { WideButton(if (chosen > 1) "To overlay ($chosen)" else "添加到叠加层", chosen > 0) { lift(vm, clip) } }
             }
         }
     }
@@ -358,7 +358,7 @@ private fun chooseAll(vm: EditorViewModel, clip: ClipView, indices: List<Int>) {
     fun next() {
         val index = left.removeFirstOrNull() ?: return
         val thing = Erasing.things?.getOrNull(index) ?: return
-        val doing = "Finding the outlines"
+        val doing = "正在识别轮廓"
         Erasing.asked = index
         Erasing.job = doing to 1f - (left.size + 1f) / indices.size
         val listener = listen(vm, outline = { patch ->
