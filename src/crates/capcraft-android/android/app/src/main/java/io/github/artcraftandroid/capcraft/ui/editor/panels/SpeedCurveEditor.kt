@@ -79,14 +79,14 @@ fun SpeedCurveEditor(vm: EditorViewModel, clip: ClipView, start: List<Pair<Doubl
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Row(Modifier.clickable(onClick = onBack).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Glyph(LucideIcons.ChevronLeft, Palette.Text, size = 18.dp)
-                Text("Curves", style = Type.Small.copy(color = Palette.Text))
+                Text("速度曲线", style = Type.Small.copy(color = Palette.Text))
             }
             Spacer(Modifier.weight(1f))
             Text("%.1fs → %.1fs".format(sourceSeconds, sourceSeconds / meanOf(points)), style = Type.Small)
             Spacer(Modifier.weight(1f))
             val removable = chosen in 1 until points.size - 1
             Text(
-                if (removable) "Delete beat" else "Add beat",
+                if (removable) "删除节拍点" else "添加节拍点",
                 style = Type.Small.copy(color = Palette.Text),
                 modifier = Modifier.clickable {
                     if (removable) {
