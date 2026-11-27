@@ -90,12 +90,12 @@ private class MaskShape(val name: String, val id: Int)
 
 /** The shapes of the row, the package's numbers beside them. */
 private val SHAPES = listOf(
-    MaskShape("Horizontal", 0),
-    MaskShape("Mirror", 1),
-    MaskShape("Circle", 2),
-    MaskShape("Rectangle", 3),
-    MaskShape("Heart", 4),
-    MaskShape("Stars", 5),
+    MaskShape("水平", 0),
+    MaskShape("镜像", 1),
+    MaskShape("圆形", 2),
+    MaskShape("矩形", 3),
+    MaskShape("爱心", 4),
+    MaskShape("星形", 5),
 )
 
 /** Where the selected clip's picture sits, kept by the surface for the panel's defaults. */
@@ -196,26 +196,26 @@ fun MaskPanel(vm: EditorViewModel) {
         if (!has("x")) centred(pictureAspect(vm))
         put("shape", id)
     }
-    PanelFrame("Mask", vm, height = 168.dp, left = {
+    PanelFrame("蒙版", vm, height = 168.dp, left = {
         val tint = if (inverted) Palette.Accent else Palette.DockText
         Row(
             Modifier
                 .clickable {
-                    if (params == null) vm.message = "Choose a shape first" else setMask(vm, clip.id, null) { put("invert", if (inverted) 0 else 1) }
+                    if (params == null) vm.message = "请先选择蒙版形状" else setMask(vm, clip.id, null) { put("invert", if (inverted) 0 else 1) }
                 }
                 .padding(vertical = 8.dp, horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Glyph(LucideIcons.FlipHorizontal2, tint, size = 18.dp)
             Spacer(Modifier.width(6.dp))
-            Text("Invert", style = Type.Body.copy(color = tint))
+            Text("反转", style = Type.Body.copy(color = tint))
         }
     }) {
         Row(
             Modifier.fillMaxWidth().weight(1f).horizontalScroll(rememberScrollState()).padding(horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            MaskTile("None", shape < 0, adjust = false, onClick = { setMask(vm, clip.id, null, null) }) {
+            MaskTile("无", shape < 0, adjust = false, onClick = { setMask(vm, clip.id, null, null) }) {
                 Glyph(LucideIcons.Ban, Palette.DockText, size = 24.dp)
             }
             SHAPES.forEach { s ->
@@ -242,7 +242,7 @@ private fun MaskTile(label: String, selected: Boolean, adjust: Boolean, onClick:
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Glyph(LucideIcons.SlidersHorizontal, Color.White, size = 20.dp)
                     Spacer(Modifier.height(2.dp))
-                    Text("Adjust", style = Type.Tiny.copy(color = Color.White, fontWeight = FontWeight.SemiBold))
+                    Text("调整", style = Type.Tiny.copy(color = Color.White, fontWeight = FontWeight.SemiBold))
                 }
             } else {
                 glyph()
@@ -345,9 +345,9 @@ private fun outline(shape: Int, hw: Float, hh: Float, round: Float, reach: Float
 @Composable
 private fun MaskAdjust(vm: EditorViewModel, clipId: String, shape: Int, params: JSONObject, onClose: () -> Unit) {
     val tabs = when (shape) {
-        0 -> listOf("Position", "Rotate", "Feather")
-        3 -> listOf("Position", "Size", "Rotate", "Feather", "Round")
-        else -> listOf("Position", "Size", "Rotate", "Feather")
+        0 -> listOf("位置", "旋转", "羽化")
+        3 -> listOf("位置", "大小", "旋转", "羽化", "圆角")
+        else -> listOf("位置", "大小", "旋转", "羽化")
     }
     var tab by remember { mutableIntStateOf(0) }
     val name = tabs[tab.coerceAtMost(tabs.size - 1)]
@@ -373,23 +373,23 @@ private fun MaskAdjust(vm: EditorViewModel, clipId: String, shape: Int, params: 
             }
             Spacer(Modifier.weight(1f))
             Box(Modifier.size(44.dp).clickable(onClick = onClose), contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.CircleChevronDown, Palette.DockText, size = 22.dp, description = "Close")
+                Glyph(LucideIcons.CircleChevronDown, Palette.DockText, size = 22.dp, description = "关闭")
             }
         }
         Column(Modifier.fillMaxWidth().height(110.dp), verticalArrangement = Arrangement.Center) {
             when (name) {
-                "Position" -> {
-                    RulerRow("X axis", num("x", 50.0) - 50, -50f..50f, { send("mask-x", "x", it + 50.0) }, vm::endGesture)
-                    RulerRow("Y axis", 50 - num("y", 50.0), -50f..50f, { send("mask-y", "y", 50.0 - it) }, vm::endGesture)
+                "位置" -> {
+                    RulerRow("水平位置", num("x", 50.0) - 50, -50f..50f, { send("mask-x", "x", it + 50.0) }, vm::endGesture)
+                    RulerRow("垂直位置", 50 - num("y", 50.0), -50f..50f, { send("mask-y", "y", 50.0 - it) }, vm::endGesture)
                 }
-                "Size" -> {
-                    if (shape != 1) RulerRow("X axis", num("width", 60.0), 1f..200f, { send("mask-width", "width", it.toDouble()) }, vm::endGesture)
-                    RulerRow("Y axis", num("height", 60.0), 1f..200f, { send("mask-height", "height", it.toDouble()) }, vm::endGesture)
+                "大小" -> {
+                    if (shape != 1) RulerRow("水平位置", num("width", 60.0), 1f..200f, { send("mask-width", "width", it.toDouble()) }, vm::endGesture)
+                    RulerRow("垂直位置", num("height", 60.0), 1f..200f, { send("mask-height", "height", it.toDouble()) }, vm::endGesture)
                 }
-                "Rotate" -> RulerRow(null, num("rotation", 0.0), -180f..180f, { send("mask-rotation", "rotation", it.toDouble()) }, vm::endGesture, unit = "°")
+                "旋转" -> RulerRow(null, num("rotation", 0.0), -180f..180f, { send("mask-rotation", "rotation", it.toDouble()) }, vm::endGesture, unit = "°")
                 else -> {
                     // Feather, or the rectangle's corners
-                    val key = if (name == "Round") "round" else "feather"
+                    val key = if (name == "圆角") "round" else "feather"
                     var held by remember(key) { mutableStateOf<Float?>(null) }
                     val feather = held ?: num(key, 0.0)
                     Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -420,7 +420,7 @@ private fun MaskAdjust(vm: EditorViewModel, clipId: String, shape: Int, params: 
             ) {
                 Glyph(LucideIcons.RotateCcw, Palette.DockText, size = 18.dp)
                 Spacer(Modifier.width(8.dp))
-                Text("Reset", style = Type.Body.copy(color = Palette.DockText))
+                Text("重置", style = Type.Body.copy(color = Palette.DockText))
             }
         }
     }
