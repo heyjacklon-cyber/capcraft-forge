@@ -128,7 +128,7 @@ fun HighlightPanel(vm: EditorViewModel) {
 
     PanelFrame("Highlight", vm, height = 330.dp, left = {
         if (chosen.isNotEmpty()) {
-            Text("Clear", style = Type.Small.copy(color = Palette.DockText), modifier = Modifier.clickable { apply(emptySet()) }.padding(8.dp))
+            Text("清除", style = Type.Small.copy(color = Palette.DockText), modifier = Modifier.clickable { apply(emptySet()) }.padding(8.dp))
         }
     }, onDone = { vm.endGesture(); vm.panel = null }) {
         if (captions.isEmpty()) {
