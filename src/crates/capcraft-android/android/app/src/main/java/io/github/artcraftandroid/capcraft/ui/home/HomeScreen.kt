@@ -188,38 +188,38 @@ private class Shortcut(val id: String, val label: String, val icon: ImageVector,
  * record hands over to the phone's camera; Audio tools opens a list of its own.
  */
 private val SHORTCUTS = listOf(
-    Shortcut("autocut", "AutoCut", LucideIcons.Clapperboard, videoOnly = false),
-    Shortcut("retouch", "Retouch", LucideIcons.Smile, videoOnly = false),
-    Shortcut("phototools", "Photo tools", LucideIcons.Image, videoOnly = false),
-    Shortcut("camera", "Shoot and record", LucideIcons.Camera),
-    Shortcut("enhance", "Auto enhance", LucideIcons.WandSparkles, videoOnly = false),
-    Shortcut("cover", "Cover maker", LucideIcons.ImagePlay),
-    Shortcut("captions", "Auto captions", LucideIcons.Captions),
-    Shortcut("removebg", "Remove background", LucideIcons.UserRoundX, videoOnly = false),
-    Shortcut("speed", "Adjust speed", LucideIcons.Gauge),
-    Shortcut("audiotools", "Audio tools", LucideIcons.AudioLines),
-    Shortcut("highlight", "Auto highlight", LucideIcons.Sparkles),
-    Shortcut("screen", "Screen record", LucideIcons.Film),
-    Shortcut("reel", "Reel to template", LucideIcons.LayoutTemplate),
-    Shortcut("templates", "Templates", LucideIcons.Sparkles),
+    Shortcut("autocut", "智能剪辑", LucideIcons.Clapperboard, videoOnly = false),
+    Shortcut("retouch", "人像美化", LucideIcons.Smile, videoOnly = false),
+    Shortcut("phototools", "照片工具", LucideIcons.Image, videoOnly = false),
+    Shortcut("camera", "拍摄视频", LucideIcons.Camera),
+    Shortcut("enhance", "画质增强", LucideIcons.WandSparkles, videoOnly = false),
+    Shortcut("cover", "封面制作", LucideIcons.ImagePlay),
+    Shortcut("captions", "自动字幕", LucideIcons.Captions),
+    Shortcut("removebg", "抠图", LucideIcons.UserRoundX, videoOnly = false),
+    Shortcut("speed", "调整速度", LucideIcons.Gauge),
+    Shortcut("audiotools", "音频工具", LucideIcons.AudioLines),
+    Shortcut("highlight", "精彩片段", LucideIcons.Sparkles),
+    Shortcut("screen", "屏幕录制", LucideIcons.Film),
+    Shortcut("reel", "视频转模板", LucideIcons.LayoutTemplate),
+    Shortcut("templates", "模板", LucideIcons.Sparkles),
 )
 
 /** Photo tools' list: each a tool, with what it does in a line. */
 private val PHOTO_TOOLS = listOf(
-    Triple("collage", "Collage", "Lay two to nine photos or videos out together."),
-    Triple("objects", "Remove objects", "Take people or things out of a photo."),
-    Triple("finecut", "Fine cutout", "Cut bare branches and other fine things from the sky."),
-    Triple("lightpeople", "Light people", "Give people the light they want."),
-    Triple("lighting", "Smart lighting", "Brighten a dark photo in one tap."),
-    Triple("framecapture", "Frame capture", "Keep a still from a video as a photo."),
+    Triple("collage", "拼图", "将 2 至 9 张照片或视频拼接在一起。"),
+    Triple("objects", "移除物体", "从照片中移除人物或物体。"),
+    Triple("finecut", "精细抠图", "从天空背景中精细分离树枝等细小物体。"),
+    Triple("lightpeople", "人物补光", "为人物补充自然光线。"),
+    Triple("lighting", "智能补光", "一键提亮较暗的照片。"),
+    Triple("framecapture", "视频截图", "将视频中的画面保存为照片。"),
 )
 
 /** Audio tools' list: each a tool the picked video opens on, with what it does in a line. */
 private val AUDIO_TOOLS = listOf(
-    Triple("record", "Record", "Speak over a video as it plays."),
-    Triple("noise", "Reduce noise", "Quiet the hiss and hum behind a voice."),
-    Triple("enhancevoice", "Enhance voice", "Make a voice clearer and closer."),
-    Triple("extract", "Extract audio", "Take a video's sound out as a clip of its own."),
+    Triple("record", "录音", "在视频播放时录制旁白。"),
+    Triple("noise", "降噪", "降低人声背后的嘶嘶声和嗡嗡声。"),
+    Triple("enhancevoice", "人声增强", "让人声更加清晰、突出。"),
+    Triple("extract", "提取音频", "将视频声音提取为独立音频片段。"),
 )
 
 @Composable
@@ -259,7 +259,7 @@ fun HomeScreen(
                             }
                         }
                     }
-                }.onSuccess { message = "Project file saved" }.onFailure { message = it.userMessage }
+                }.onSuccess { message = "项目文件已保存" }.onFailure { message = it.userMessage }
             }
         }
     }
@@ -268,9 +268,9 @@ fun HomeScreen(
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                message = "Opening the project file"
+                message = "正在打开项目文件"
                 runCatching { withContext(Threads.commands) { io.github.artcraftandroid.capcraft.engine.ProjectZip.read(appContext, uri) } }
-                    .onSuccess { message = "Added ${it.name.ifBlank { "Untitled" }}" }
+                    .onSuccess { message = "Added ${it.name.ifBlank { "未命名" }}" }
                     .onFailure { message = it.userMessage }
                 refresh++
             }
@@ -397,7 +397,7 @@ fun HomeScreen(
         capture = uri
         runCatching { camera.launch(uri) }.onFailure {
             capture = null
-            message = "There is no camera app to record with"
+            message = "未找到可用于拍摄的相机应用"
         }
     }
 
@@ -406,13 +406,13 @@ fun HomeScreen(
         val data = answer.data
         if (answer.resultCode == android.app.Activity.RESULT_OK && data != null) {
             runCatching { io.github.artcraftandroid.capcraft.engine.ScreenRecordService.start(homeContext, answer.resultCode, data, mic = true) }
-                .onSuccess { message = "Recording. Stop it in the notification" }
+                .onSuccess { message = "正在录制，可在通知栏停止" }
                 .onFailure { message = it.userMessage }
         }
     }
     fun askScreen() {
         val manager = homeContext.getSystemService(android.media.projection.MediaProjectionManager::class.java)
-        runCatching { consent.launch(manager.createScreenCaptureIntent()) }.onFailure { message = "This phone cannot record its screen" }
+        runCatching { consent.launch(manager.createScreenCaptureIntent()) }.onFailure { message = "这部手机无法录制屏幕" }
     }
     // the microphone and the notification its Stop is on, asked for first; refused, it records without sound
     val recordAllowed = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { askScreen() }
@@ -442,7 +442,7 @@ fun HomeScreen(
         tool = null
         io.github.artcraftandroid.capcraft.ui.common.MediaPick.open(io.github.artcraftandroid.capcraft.ui.common.MediaKinds.BOTH, multiple = true) { uris ->
             scope.launch {
-                message = "Filling the template"
+                message = "正在套用模板"
                 runCatching {
                     withContext(Threads.commands) { io.github.artcraftandroid.capcraft.engine.Templates.fill(homeContext.applicationContext, p, uris) }
                 }.onSuccess { path -> edit(path, emptyList(), null) }.onFailure { message = it.userMessage; refresh++ }
@@ -549,14 +549,14 @@ fun HomeScreen(
         }
 
         if (audioTools) {
-            ToolsSheet("Audio tools", AUDIO_TOOLS, onClose = { audioTools = false }) { id ->
+            ToolsSheet("音频工具", AUDIO_TOOLS, onClose = { audioTools = false }) { id ->
                 audioTools = false
                 shortcut(id, videoOnly = true)
             }
         }
         if (builtins) {
             val list = remember { runCatching { io.github.artcraftandroid.capcraft.core.builtinTemplates() }.getOrDefault(emptyList()) }
-            ToolsSheet("Templates", list.map { Triple("tpl:" + it.id, it.name, it.line + " " + if (it.places == 1u) "1 photo." else "${it.places} photos.") }, onClose = { builtins = false }) { id ->
+            ToolsSheet("模板", list.map { Triple("tpl:" + it.id, it.name, it.line + " " + if (it.places == 1u) "1 photo." else "${it.places} photos.") }, onClose = { builtins = false }) { id ->
                 builtins = false
                 scope.launch {
                     runCatching {
@@ -569,7 +569,7 @@ fun HomeScreen(
             }
         }
         if (photoTools) {
-            ToolsSheet("Photo tools", PHOTO_TOOLS, onClose = { photoTools = false }) { id ->
+            ToolsSheet("照片工具", PHOTO_TOOLS, onClose = { photoTools = false }) { id ->
                 photoTools = false
                 val kinds = when (id) {
                     "collage" -> io.github.artcraftandroid.capcraft.ui.common.MediaKinds.BOTH
@@ -589,10 +589,10 @@ fun HomeScreen(
                         .navigationBarsPadding().padding(bottom = 12.dp),
                 ) {
                     Box(Modifier.align(Alignment.CenterHorizontally).padding(vertical = 8.dp).size(36.dp, 4.dp).clip(RoundedCornerShape(2.dp)).background(Home.Grabber))
-                    SheetRow(LucideIcons.Clapperboard, "Edit this video") { sharedVideo = null; startProject(listOf(video), null) }
-                    SheetRow(LucideIcons.LayoutTemplate, "Make a template from it") { sharedVideo = null; startProject(listOf(video), "reel") }
+                    SheetRow(LucideIcons.Clapperboard, "编辑此视频") { sharedVideo = null; startProject(listOf(video), null) }
+                    SheetRow(LucideIcons.LayoutTemplate, "将此视频制作成模板") { sharedVideo = null; startProject(listOf(video), "reel") }
                     Text(
-                        "A template keeps its cuts, transitions, moves and sound, for your own photos and videos to go in. It is read on this phone.",
+                        "模板会保留原视频的剪辑点、转场、运镜和声音，之后可替换为自己的照片和视频。模板分析在本机完成。",
                         style = ink(12f, color = Home.Muted), modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     )
                 }
@@ -601,15 +601,15 @@ fun HomeScreen(
         if (deletingMany) {
             val picked = managing.orEmpty()
             HomeConfirm(
-                text = "Move ${picked.size} project${if (picked.size == 1) "" else "s"} to the Trash? They're kept there for 30 days.",
-                confirm = "Move",
+                text = "确定将选中的 ${picked.size} 个项目移至回收站？项目将在回收站保留 30 天。",
+                confirm = "移至回收站",
                 onDismiss = { deletingMany = false },
             ) {
                 deletingMany = false
                 managing = null
                 scope.launch {
                     withContext(Threads.commands) { picked.forEach { runCatching { trashProject(it) } } }
-                    message = "Moved to the Trash"
+                    message = "已移至回收站"
                     refresh++
                 }
             }
@@ -651,14 +651,14 @@ fun HomeScreen(
         }
         deleting?.let { p ->
             HomeConfirm(
-                text = "Move this project to the Trash? It's kept there for 30 days.",
-                confirm = "Move",
+                text = "确定将此项目移至回收站？项目将在回收站保留 30 天。",
+                confirm = "移至回收站",
                 onDismiss = { deleting = null },
             ) {
                 deleting = null
                 scope.launch {
                     runCatching { withContext(Threads.commands) { trashProject(p.path) } }
-                        .onSuccess { message = "Moved to the Trash" }
+                        .onSuccess { message = "已移至回收站" }
                         .onFailure { message = it.userMessage }
                     refresh++
                 }
@@ -672,7 +672,7 @@ fun HomeScreen(
                     trashMenu = null
                     scope.launch {
                         runCatching { withContext(Threads.commands) { restoreProject(p.path) } }
-                            .onSuccess { message = "Restored" }
+                            .onSuccess { message = "已恢复" }
                             .onFailure { message = it.userMessage }
                         refresh++
                     }
@@ -682,8 +682,8 @@ fun HomeScreen(
         }
         purging?.let { p ->
             HomeConfirm(
-                text = "Delete this project for good? This can't be undone.",
-                confirm = "Delete",
+                text = "确定永久删除此项目？此操作无法撤销。",
+                confirm = "删除",
                 onDismiss = { purging = null },
             ) {
                 purging = null
@@ -833,7 +833,7 @@ private fun ToolsSheet(title: String, tools: List<Triple<String, String, String>
             Box(
                 Modifier.size(52.dp).clip(androidx.compose.foundation.shape.CircleShape).background(Home.Round).clickable(onClick = onClose),
                 contentAlignment = Alignment.Center,
-            ) { Glyph(LucideIcons.X, Home.Ink, size = 20.dp, description = "Close") }
+            ) { Glyph(LucideIcons.X, Home.Ink, size = 20.dp, description = "关闭") }
         }
     }
 }
@@ -915,7 +915,7 @@ private fun StripTile(p: ProjectSummary, onClick: () -> Unit) {
         Row(Modifier.align(Alignment.BottomStart).padding(horizontal = 5.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Glyph(if (isPhoto(p)) LucideIcons.Image else LucideIcons.Scissors, Color.White, size = 10.dp)
             Spacer(Modifier.width(3.dp))
-            Text(p.name.ifBlank { "Untitled" }, style = ink(10.5f, FontWeight.Medium, Color.White), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(p.name.ifBlank { "未命名" }, style = ink(10.5f, FontWeight.Medium, Color.White), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -986,7 +986,7 @@ private fun ProjectsTab(
                         }
                     }
                     Text(
-                        "Cancel",
+                        "取消",
                         style = ink(15f),
                         modifier = Modifier.clickable { query = ""; onSearching(false) }.padding(horizontal = 10.dp, vertical = 8.dp),
                     )
@@ -1117,7 +1117,7 @@ private fun ProjectRow(p: ProjectSummary, ticked: Boolean?, onOpen: () -> Unit, 
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(p.name.ifBlank { "Untitled" }, style = ink(15f, FontWeight.SemiBold), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(p.name.ifBlank { "未命名" }, style = ink(15f, FontWeight.SemiBold), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(4.dp))
             Text(stamp(p.modifiedMs), style = ink(13f, color = Home.Muted))
             Spacer(Modifier.height(4.dp))
@@ -1243,22 +1243,22 @@ private fun MeTab(onLicences: () -> Unit, onAbout: () -> Unit, onCleared: (Strin
         }
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
             SettingRow("Clear cache", cache?.let(::size) ?: "") { clearing = true }
-            SettingRow("Licences", null, onLicences)
-            SettingRow("About CapCraft Forge", null, onAbout)
-            SettingRow("Version", version, null)
+            SettingRow("开源许可", null, onLicences)
+            SettingRow("关于 CapCraft Forge", null, onAbout)
+            SettingRow("版本", version, null)
         }
     }
     if (clearing) {
         HomeConfirm(
-            text = "Clear the cache? Previews and waveforms are made again when needed; projects are kept.",
-            confirm = "Clear",
+            text = "确定清理缓存？预览和音频波形会在需要时重新生成，项目文件不会被删除。",
+            confirm = "清理",
             onDismiss = { clearing = false },
         ) {
             clearing = false
             scope.launch {
                 val freed = withContext(Threads.commands) { clearCaches(context) }
                 cache = withContext(Threads.commands) { cacheSize(context) }
-                onCleared("Cleared ${size(freed)}")
+                onCleared("已清理 ${size(freed)}")
             }
         }
     }
@@ -1288,7 +1288,7 @@ private fun Page(title: String, onBack: () -> Unit, content: @Composable () -> U
         Box(Modifier.fillMaxWidth().height(50.dp), contentAlignment = Alignment.Center) {
             Text(title, style = ink(17f, FontWeight.SemiBold))
             Box(Modifier.align(Alignment.CenterStart).padding(start = 4.dp).size(44.dp).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.ChevronLeft, Home.Ink, size = 24.dp, description = "Back")
+                Glyph(LucideIcons.ChevronLeft, Home.Ink, size = 24.dp, description = "返回")
             }
         }
         content()
@@ -1307,7 +1307,7 @@ private const val ENGINE_URL = "https://github.com/jub0t/Concat"
 private fun AboutScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val version = remember { appVersion(context) }
-    Page("About CapCraft Forge", onBack) {
+    Page("关于 CapCraft Forge", onBack) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(Modifier.height(24.dp))
             Text("CapCraft Forge", style = ink(26f, FontWeight.Bold))
@@ -1333,11 +1333,11 @@ private fun AboutScreen(onBack: () -> Unit) {
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                "Not affiliated with or endorsed by ByteDance or CapCut.",
+                "本项目与字节跳动或 CapCut 无关联，也未获得其认可。",
                 style = ink(13f, color = Home.Muted).copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center),
             )
             // the source, as the licence asks of every copy handed on, and those it comes from
-            listOf("Source code of this build" to SOURCE_URL, "Original project" to ORIGINAL_URL, "Engine" to ENGINE_URL).forEach { (label, url) ->
+            listOf("本版本源代码" to SOURCE_URL, "原始项目" to ORIGINAL_URL, "引擎" to ENGINE_URL).forEach { (label, url) ->
                 Spacer(Modifier.height(20.dp))
                 Text(label, style = ink(13f, color = Home.Muted))
                 Text(
@@ -1396,7 +1396,7 @@ private fun LicencesScreen(onBack: () -> Unit) {
         "MPL-2.0.txt" to "Mozilla Public License 2.0 (UniFFI)",
     )
     var open by remember { mutableStateOf<String?>(null) }
-    Page(files.firstOrNull { it.first == open }?.second ?: "Licences", onBack = { if (open != null) open = null else onBack() }) {
+    Page(files.firstOrNull { it.first == open }?.second ?: "开源许可", onBack = { if (open != null) open = null else onBack() }) {
         val file = open
         if (file == null) {
             files.forEach { (name, title) ->
@@ -1451,7 +1451,7 @@ private fun Scrim(onDismiss: () -> Unit, alignment: Alignment, content: @Composa
 private fun ago(ms: Long): String {
     val minutes = (System.currentTimeMillis() - ms) / 60_000
     return when {
-        minutes < 1 -> "just now"
+        minutes < 1 -> "刚刚"
         minutes < 60 -> "${minutes}m ago"
         minutes < 60 * 24 -> "${minutes / 60}h ago"
         minutes < 60 * 24 * 30 -> "${minutes / (60 * 24)}d ago"
@@ -1475,14 +1475,14 @@ private fun TrashSheet(p: ProjectSummary, onDismiss: () -> Unit, onRestore: () -
                 }
                 Spacer(Modifier.width(12.dp))
                 Column {
-                    Text(p.name.ifBlank { "Untitled" }, style = ink(15f, FontWeight.Medium), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(p.name.ifBlank { "未命名" }, style = ink(15f, FontWeight.Medium), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Spacer(Modifier.height(2.dp))
                     Text(size(p.sizeBytes), style = ink(12f, color = Home.Muted))
                 }
             }
             Box(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp).height(1.dp).background(Home.Hairline))
-            SheetRow(LucideIcons.RotateCcw, "Restore", onRestore)
-            SheetRow(LucideIcons.Trash2, "Delete for good", onDelete)
+            SheetRow(LucideIcons.RotateCcw, "恢复", onRestore)
+            SheetRow(LucideIcons.Trash2, "永久删除", onDelete)
         }
     }
 }
@@ -1503,17 +1503,17 @@ private fun ProjectSheet(p: ProjectSummary, onDismiss: () -> Unit, onRename: () 
                 }
                 Spacer(Modifier.width(12.dp))
                 Column {
-                    Text(p.name.ifBlank { "Untitled" }, style = ink(15f, FontWeight.Medium), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(p.name.ifBlank { "未命名" }, style = ink(15f, FontWeight.Medium), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Spacer(Modifier.height(2.dp))
                     Text("${size(p.sizeBytes)} · Updated ${ago(p.modifiedMs)}", style = ink(12f, color = Home.Muted))
                 }
             }
             Box(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp).height(1.dp).background(Home.Hairline))
-            SheetRow(LucideIcons.Pencil, "Rename", onRename)
-            SheetRow(LucideIcons.Copy, "Duplicate", onDuplicate)
-            SheetRow(LucideIcons.LayoutTemplate, "Use as template", onTemplate)
-            SheetRow(LucideIcons.Share2, "Export project file", onExport)
-            SheetRow(LucideIcons.Trash2, "Delete", onDelete)
+            SheetRow(LucideIcons.Pencil, "重命名", onRename)
+            SheetRow(LucideIcons.Copy, "复制", onDuplicate)
+            SheetRow(LucideIcons.LayoutTemplate, "用作模板", onTemplate)
+            SheetRow(LucideIcons.Share2, "导出项目文件", onExport)
+            SheetRow(LucideIcons.Trash2, "删除", onDelete)
         }
     }
 }
@@ -1539,9 +1539,9 @@ private fun RenameSheet(current: String, onDismiss: () -> Unit, onDone: (String)
                 .navigationBarsPadding().imePadding().padding(horizontal = 16.dp).padding(bottom = 12.dp),
         ) {
             Box(Modifier.fillMaxWidth().height(50.dp), contentAlignment = Alignment.Center) {
-                Text("Rename", style = ink(16f, FontWeight.Bold))
+                Text("重命名", style = ink(16f, FontWeight.Bold))
                 Box(Modifier.align(Alignment.CenterEnd).size(40.dp).clickable(onClick = onDismiss), contentAlignment = Alignment.CenterEnd) {
-                    Glyph(LucideIcons.X, Home.Ink, size = 22.dp, description = "Close")
+                    Glyph(LucideIcons.X, Home.Ink, size = 22.dp, description = "关闭")
                 }
             }
             Row(
@@ -1571,7 +1571,7 @@ private fun RenameSheet(current: String, onDismiss: () -> Unit, onDone: (String)
                     .background(if (ok) Palette.Accent else Palette.Accent.copy(alpha = 0.4f))
                     .clickable(enabled = ok) { onDone(text.text.trim()) },
                 contentAlignment = Alignment.Center,
-            ) { Text("Confirm", style = ink(15f, FontWeight.Medium, Color.White)) }
+            ) { Text("确认", style = ink(15f, FontWeight.Medium, Color.White)) }
         }
     }
 }
@@ -1590,7 +1590,7 @@ private fun HomeConfirm(text: String, confirm: String, onDismiss: () -> Unit, on
                 Box(
                     Modifier.weight(1f).height(44.dp).clip(RoundedCornerShape(6.dp)).background(Home.Field).clickable(onClick = onDismiss),
                     contentAlignment = Alignment.Center,
-                ) { Text("Cancel", style = ink(15f, FontWeight.Medium)) }
+                ) { Text("取消", style = ink(15f, FontWeight.Medium)) }
                 Box(
                     Modifier.weight(1f).height(44.dp).clip(RoundedCornerShape(6.dp)).background(Palette.Accent).clickable(onClick = onConfirm),
                     contentAlignment = Alignment.Center,
