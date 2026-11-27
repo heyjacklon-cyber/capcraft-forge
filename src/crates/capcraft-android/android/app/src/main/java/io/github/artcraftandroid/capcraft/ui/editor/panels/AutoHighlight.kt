@@ -35,9 +35,9 @@ private val LENGTHS = listOf(15 to "15s", 30 to "30s", 60 to "1 min", 180 to "3 
 fun AutoHighlightPanel(vm: EditorViewModel) {
     var length by remember { mutableIntStateOf(30) }
     var working by remember { mutableStateOf(false) }
-    PanelFrame("Auto highlight", vm, height = 260.dp) {
+    PanelFrame("智能高光", vm, height = 260.dp) {
         Text(
-            "Keeps the liveliest moments, found by their sound, and cuts the rest. Undo brings it all back.",
+            "根据声音识别视频中最精彩的片段，并剪掉其余部分。可以随时撤销恢复。",
             style = Type.Small,
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
         )
@@ -54,7 +54,7 @@ fun AutoHighlightPanel(vm: EditorViewModel) {
         }
         Spacer(Modifier.height(14.dp))
         Box(Modifier.padding(horizontal = 16.dp)) {
-            WideButton(if (working) "Listening" else "Make highlights", !working) {
+            WideButton(if (working) "正在分析音频" else "生成精彩片段", !working) {
                 working = true
                 val before = vm.timeline?.revision
                 vm.edit(settled = {
