@@ -76,30 +76,30 @@ data class Tool(
 private fun multiTools(vm: EditorViewModel): List<Tool> {
     val chosen = vm.chosen.orEmpty()
     return listOf(
-        Tool("addtext", "Add text", LucideIcons.Type) {
+        Tool("addtext", "添加文字", LucideIcons.Type) {
             vm.chosen = null
             vm.select(null)
             vm.panel = Panel.Text(null)
         },
         divider("d-multi"),
-        Tool("delete", "Delete", LucideIcons.Trash2, enabled = chosen.isNotEmpty()) {
+        Tool("delete", "删除", LucideIcons.Trash2, enabled = chosen.isNotEmpty()) {
             vm.edit { delete(chosen.toList()) }
             vm.chosen = null
         },
         // video clips side by side, made one
-        Tool("compound", "Compound clip", LucideIcons.Layers2, enabled = chosen.size >= 2 && chosen.all { vm.clip(it)?.kind == "video" }) {
+        Tool("compound", "复合片段", LucideIcons.Layers2, enabled = chosen.size >= 2 && chosen.all { vm.clip(it)?.kind == "video" }) {
             val ids = chosen.toList()
             vm.chosen = null
             vm.compound(ids)
         },
         // clips off the main track, to move and go together
-        Tool("group", "Group", LucideIcons.Link2, enabled = chosen.count { vm.rowOf(it)?.kind != RowKind.MAIN } >= 2) {
+        Tool("group", "编组", LucideIcons.Link2, enabled = chosen.count { vm.rowOf(it)?.kind != RowKind.MAIN } >= 2) {
             val ids = chosen.filter { vm.rowOf(it)?.kind != RowKind.MAIN }
             vm.edit { group(ids) }
             vm.chosen = null
-            vm.message = "Grouped"
+            vm.message = "已编组"
         },
-        Tool("deselect", if (chosen.isEmpty()) "Deselect all" else "Deselect all (${chosen.size})", LucideIcons.SquareCheckBig) { vm.chosen = null },
+        Tool("deselect", if (chosen.isEmpty()) "取消全选" else "Deselect all (${chosen.size})", LucideIcons.SquareCheckBig) { vm.chosen = null },
     )
 }
 
@@ -203,7 +203,7 @@ fun Dock(vm: EditorViewModel) {
                         if ((selected != null && !restingMain) || choosing) LucideIcons.ChevronsLeft else LucideIcons.ChevronLeft,
                         Palette.DockText,
                         size = 22.dp,
-                        description = "Back",
+                        description = "返回",
                     )
                 }
             }
@@ -262,89 +262,89 @@ private fun ToolItem(tool: Tool, width: androidx.compose.ui.unit.Dp = 60.dp) {
 private fun rootTools(vm: EditorViewModel): List<Tool> = listOfNotNull(
     // a collage's layouts first, as its own editor starts with them
     if (vm.timeline != null && vm.session?.collage() != null) {
-        Tool("collage", "Layout", LucideIcons.LayoutTemplate) { vm.panel = Panel.Collage }
+        Tool("collage", "布局", LucideIcons.LayoutTemplate) { vm.panel = Panel.Collage }
     } else {
         null
     },
-    Tool("edit", "Edit", LucideIcons.Scissors) {
-        vm.mainClipAtPlayhead()?.let { vm.select(it.id) } ?: run { vm.message = "Add a clip first" }
+    Tool("edit", "编辑", LucideIcons.Scissors) {
+        vm.mainClipAtPlayhead()?.let { vm.select(it.id) } ?: run { vm.message = "请先添加片段" }
     },
-    Tool("audio", "Audio", LucideIcons.Music2) { vm.dock = vm.dock + DockLevel.Group("audio") },
-    Tool("text", "Text", LucideIcons.Type) { vm.dock = vm.dock + DockLevel.Group("text") },
-    Tool("effects", "Effects", LucideIcons.Star) { vm.dock = vm.dock + DockLevel.Group("effects") },
-    Tool("overlay", "Overlay", LucideIcons.Image) { vm.dock = vm.dock + DockLevel.Group("overlay") },
+    Tool("audio", "音频", LucideIcons.Music2) { vm.dock = vm.dock + DockLevel.Group("audio") },
+    Tool("text", "文字", LucideIcons.Type) { vm.dock = vm.dock + DockLevel.Group("text") },
+    Tool("effects", "特效", LucideIcons.Star) { vm.dock = vm.dock + DockLevel.Group("effects") },
+    Tool("overlay", "画中画", LucideIcons.Image) { vm.dock = vm.dock + DockLevel.Group("overlay") },
     // the auto captions sheet opens straight over the group, as the reference does
-    Tool("captions", "Captions", LucideIcons.Captions) {
+    Tool("captions", "字幕", LucideIcons.Captions) {
         vm.dock = vm.dock + DockLevel.Group("captions")
         vm.panel = Panel.Captions
     },
     // both open their sheet over a group of the two, as the reference does
-    Tool("filters", "Filters", LucideIcons.Blend) {
+    Tool("filters", "滤镜", LucideIcons.Blend) {
         vm.dock = vm.dock + DockLevel.Group("filters")
         vm.panel = Panel.Packages("filter", Panel.Target.Layer)
     },
-    Tool("adjust", "Adjust", LucideIcons.Settings2) {
+    Tool("adjust", "调整", LucideIcons.Settings2) {
         vm.dock = vm.dock + DockLevel.Group("filters")
         vm.panel = Panel.Adjust
     },
-    Tool("stickers", "Stickers", LucideIcons.Sticker) { vm.panel = Panel.Stickers },
-    Tool("graphics", "Graphics", LucideIcons.Shapes) { vm.panel = Panel.Graphics() },
-    Tool("transcript", "Transcript", LucideIcons.FileText) { vm.panel = Panel.Transcript },
-    Tool("fillers", "Filler words", LucideIcons.Scissors) { vm.panel = Panel.Fillers },
-    Tool("slots", "Replace media", LucideIcons.Replace) { vm.panel = Panel.Slots },
-    Tool("ratio", "Aspect ratio", LucideIcons.Square) { vm.panel = Panel.Ratio },
-    Tool("autohighlight", "Auto highlight", LucideIcons.Sparkles) { vm.panel = Panel.AutoHighlight },
-    Tool("preview", "Preview quality", LucideIcons.Gauge) { vm.panel = Panel.PreviewQuality },
-    Tool("background", "Background", MaterialIcons.Texture) { vm.dock = vm.dock + DockLevel.Group("background") },
+    Tool("stickers", "贴纸", LucideIcons.Sticker) { vm.panel = Panel.Stickers },
+    Tool("graphics", "图形", LucideIcons.Shapes) { vm.panel = Panel.Graphics() },
+    Tool("transcript", "转录文本", LucideIcons.FileText) { vm.panel = Panel.Transcript },
+    Tool("fillers", "语气词", LucideIcons.Scissors) { vm.panel = Panel.Fillers },
+    Tool("slots", "替换素材", LucideIcons.Replace) { vm.panel = Panel.Slots },
+    Tool("ratio", "画面比例", LucideIcons.Square) { vm.panel = Panel.Ratio },
+    Tool("autohighlight", "精彩片段", LucideIcons.Sparkles) { vm.panel = Panel.AutoHighlight },
+    Tool("preview", "预览画质", LucideIcons.Gauge) { vm.panel = Panel.PreviewQuality },
+    Tool("background", "背景", MaterialIcons.Texture) { vm.dock = vm.dock + DockLevel.Group("background") },
 )
 
 private fun groupTools(vm: EditorViewModel, id: String, pickers: Pickers): List<Tool> = when (id) {
     "audio" -> listOf(
-        Tool("extracted", "Extract", LucideIcons.AudioLines) { pickers.video { vm.addFile(it, asAudio = true) } },
-        Tool("sounds", "Sounds", LucideIcons.Music2) { vm.panel = Panel.Sounds },
-        Tool("soundfx", "Sound FX", LucideIcons.Sparkles) { vm.panel = Panel.SoundFx },
-        Tool("voiceover", "Record", LucideIcons.Mic) { vm.panel = Panel.Voiceover },
+        Tool("extracted", "提取", LucideIcons.AudioLines) { pickers.video { vm.addFile(it, asAudio = true) } },
+        Tool("sounds", "音效", LucideIcons.Music2) { vm.panel = Panel.Sounds },
+        Tool("soundfx", "声音特效", LucideIcons.Sparkles) { vm.panel = Panel.SoundFx },
+        Tool("voiceover", "录音", LucideIcons.Mic) { vm.panel = Panel.Voiceover },
         divider("d-audiomake"),
-        Tool("texttoaudio", "Text to audio", LucideIcons.AudioLines) { vm.panel = Panel.Speech(null) },
+        Tool("texttoaudio", "文字转语音", LucideIcons.AudioLines) { vm.panel = Panel.Speech(null) },
     )
     "text" -> listOf(
-        Tool("addtext", "Add text", LucideIcons.Type) { vm.panel = Panel.Text(null) },
-        Tool("autocaptions", "Auto Captions", LucideIcons.Captions) { vm.panel = Panel.Captions },
-        Tool("stickers", "Stickers", LucideIcons.Sticker) { vm.panel = Panel.Stickers },
-        Tool("graphics", "Graphics", LucideIcons.Shapes) { vm.panel = Panel.Graphics() },
-        Tool("draw", "Draw", LucideIcons.Paintbrush) { vm.panel = Panel.Draw },
+        Tool("addtext", "添加文字", LucideIcons.Type) { vm.panel = Panel.Text(null) },
+        Tool("autocaptions", "自动字幕", LucideIcons.Captions) { vm.panel = Panel.Captions },
+        Tool("stickers", "贴纸", LucideIcons.Sticker) { vm.panel = Panel.Stickers },
+        Tool("graphics", "图形", LucideIcons.Shapes) { vm.panel = Panel.Graphics() },
+        Tool("draw", "绘画", LucideIcons.Paintbrush) { vm.panel = Panel.Draw },
         divider("d-textmore"),
         // a new title starts on the text panel's templates
         Tool("texttemplate", "Text template", LucideIcons.LayoutTemplate) { vm.panel = Panel.Text(null) },
-        Tool("texttoaudio", "Text to audio", LucideIcons.AudioLines) { vm.panel = Panel.Speech(null) },
-        Tool("autolyrics", "Auto lyrics", LucideIcons.Music) { vm.panel = Panel.Lyrics },
+        Tool("texttoaudio", "文字转语音", LucideIcons.AudioLines) { vm.panel = Panel.Speech(null) },
+        Tool("autolyrics", "自动歌词", LucideIcons.Music) { vm.panel = Panel.Lyrics },
     )
     "overlay" -> listOf(
-        Tool("addoverlay", "Add overlay", LucideIcons.SquarePlus) { pickers.single { vm.addFile(it, asAudio = false) } },
+        Tool("addoverlay", "添加叠加素材", LucideIcons.SquarePlus) { pickers.single { vm.addFile(it, asAudio = false) } },
     )
     "filters" -> listOf(
-        Tool("filterlayer", "Filters", LucideIcons.Blend) { vm.panel = Panel.Packages("filter", Panel.Target.Layer) },
-        Tool("adjustlayer", "Adjust", LucideIcons.Settings2) { vm.panel = Panel.Adjust },
+        Tool("filterlayer", "滤镜", LucideIcons.Blend) { vm.panel = Panel.Packages("filter", Panel.Target.Layer) },
+        Tool("adjustlayer", "调整", LucideIcons.Settings2) { vm.panel = Panel.Adjust },
     )
     "effects" -> listOf(
-        Tool("videoeffects", "Video effects", LucideIcons.Star) { vm.panel = Panel.Packages("effect", Panel.Target.Layer) },
-        Tool("bodyeffects", "Body effects", LucideIcons.UserRound) { vm.panel = Panel.BodyEffects },
-        Tool("atmosphere", "Atmosphere", LucideIcons.Wind) { vm.panel = Panel.Atmosphere },
+        Tool("videoeffects", "视频特效", LucideIcons.Star) { vm.panel = Panel.Packages("effect", Panel.Target.Layer) },
+        Tool("bodyeffects", "身体特效", LucideIcons.UserRound) { vm.panel = Panel.BodyEffects },
+        Tool("atmosphere", "氛围效果", LucideIcons.Wind) { vm.panel = Panel.Atmosphere },
     )
     "background" -> listOf(
-        Tool("bgcolor", "Color", LucideIcons.Palette) { vm.panel = Panel.Background(0) },
-        Tool("bgimage", "Image", LucideIcons.Image) { vm.panel = Panel.Background(1) },
-        Tool("bgblur", "Blur", LucideIcons.Droplet) { vm.panel = Panel.Background(2) },
+        Tool("bgcolor", "颜色", LucideIcons.Palette) { vm.panel = Panel.Background(0) },
+        Tool("bgimage", "图片", LucideIcons.Image) { vm.panel = Panel.Background(1) },
+        Tool("bgblur", "模糊", LucideIcons.Droplet) { vm.panel = Panel.Background(2) },
     )
     "captions" -> listOf(
-        Tool("entercaptions", "Enter captions", LucideIcons.TextCursorInput) { vm.panel = Panel.EnterCaptions },
-        Tool("autocaptions", "Auto Captions", LucideIcons.Captions) { vm.panel = Panel.Captions },
-        Tool("highlight", "Highlight", LucideIcons.Paintbrush) { vm.panel = Panel.Highlight },
-        Tool("captionemojis", "Emojis", LucideIcons.Smile) { io.github.artcraftandroid.capcraft.ui.editor.panels.toggleCaptionEmojis(vm) },
-        Tool("captiontemplates", "Caption templates", LucideIcons.LayoutTemplate) { vm.panel = Panel.CaptionTemplates },
-        Tool("autolyrics", "Auto lyrics", LucideIcons.Music) { vm.panel = Panel.Lyrics },
-        Tool("importcaptions", "Import captions", LucideIcons.FolderOpen) { pickers.captions { vm.importCaptions(it) } },
-        Tool("exportcaptions", "Export captions", LucideIcons.Download) { vm.exportCaptions { name -> pickers.saveCaptions(name) { vm.saveCaptions(it) } } },
+        Tool("entercaptions", "输入字幕", LucideIcons.TextCursorInput) { vm.panel = Panel.EnterCaptions },
+        Tool("autocaptions", "自动字幕", LucideIcons.Captions) { vm.panel = Panel.Captions },
+        Tool("highlight", "高亮", LucideIcons.Paintbrush) { vm.panel = Panel.Highlight },
+        Tool("captionemojis", "表情符号", LucideIcons.Smile) { io.github.artcraftandroid.capcraft.ui.editor.panels.toggleCaptionEmojis(vm) },
+        Tool("captiontemplates", "字幕模板", LucideIcons.LayoutTemplate) { vm.panel = Panel.CaptionTemplates },
+        Tool("autolyrics", "自动歌词", LucideIcons.Music) { vm.panel = Panel.Lyrics },
+        Tool("importcaptions", "导入字幕", LucideIcons.FolderOpen) { pickers.captions { vm.importCaptions(it) } },
+        Tool("exportcaptions", "导出字幕", LucideIcons.Download) { vm.exportCaptions { name -> pickers.saveCaptions(name) { vm.saveCaptions(it) } } },
     )
     else -> emptyList()
 }
@@ -353,30 +353,30 @@ private fun groupTools(vm: EditorViewModel, id: String, pickers: Pickers): List<
 private fun clipSubTools(vm: EditorViewModel, clip: ClipView, level: String): List<Tool> = when (level) {
     // effects on the clip itself: the picture's, or those that treat the person apart
     "effects" -> listOf(
-        Tool("videoeffects", "Video effects", LucideIcons.Star) { vm.panel = Panel.Packages("effect", Panel.Target.Clip) },
-        Tool("bodyeffects", "Body effects", LucideIcons.UserRound) { vm.panel = Panel.BodyEffects },
+        Tool("videoeffects", "视频特效", LucideIcons.Star) { vm.panel = Panel.Packages("effect", Panel.Target.Clip) },
+        Tool("bodyeffects", "身体特效", LucideIcons.UserRound) { vm.panel = Panel.BodyEffects },
     )
     "speed" -> listOf(
-        Tool("normal", "Normal", LucideIcons.TrendingUp) { vm.panel = Panel.Speed(curve = false) },
-        Tool("curve", "Curve", LucideIcons.ChartSpline) { vm.panel = Panel.Speed(curve = true) },
+        Tool("normal", "正常", LucideIcons.TrendingUp) { vm.panel = Panel.Speed(curve = false) },
+        Tool("curve", "曲线", LucideIcons.ChartSpline) { vm.panel = Panel.Speed(curve = true) },
     )
     "transform" -> listOf(
-        Tool("rotate", "Rotate", LucideIcons.RotateCw) { vm.rotate(clip) },
-        Tool("mirror", "Mirror", LucideIcons.FlipVertical2) { vm.mirror(clip) },
-        Tool("advanced", "Advanced", LucideIcons.SlidersHorizontal) { vm.panel = Panel.Basic },
+        Tool("rotate", "旋转", LucideIcons.RotateCw) { vm.rotate(clip) },
+        Tool("mirror", "镜像", LucideIcons.FlipVertical2) { vm.mirror(clip) },
+        Tool("advanced", "高级", LucideIcons.SlidersHorizontal) { vm.panel = Panel.Basic },
     )
     // the model takes the background off, or a colour is keyed out; a new background then shows behind
     "removebg" -> listOf(
-        Tool("autoremove", "Auto removal", LucideIcons.UserRoundX) { vm.panel = Panel.RemoveBg },
-        Tool("customremove", "Custom removal", LucideIcons.Paintbrush) { vm.panel = Panel.CustomCutout },
+        Tool("autoremove", "自动移除", LucideIcons.UserRoundX) { vm.panel = Panel.RemoveBg },
+        Tool("customremove", "手动移除", LucideIcons.Paintbrush) { vm.panel = Panel.CustomCutout },
         // branches, wires and other fine things, by colour rather than by a model
-        Tool("finecut", "Fine cutout", LucideIcons.Leaf, enabled = clip.kind == "image") { vm.panel = Panel.FineCutout },
-        Tool("chroma", "Chroma key", LucideIcons.Pipette) { vm.panel = Panel.Chroma },
-        Tool("changebg", "Change BG", LucideIcons.ImagePlus, enabled = io.github.artcraftandroid.capcraft.ui.editor.panels.cutoutOn(vm, clip)) {
+        Tool("finecut", "精细抠图", LucideIcons.Leaf, enabled = clip.kind == "image") { vm.panel = Panel.FineCutout },
+        Tool("chroma", "色度键", LucideIcons.Pipette) { vm.panel = Panel.Chroma },
+        Tool("changebg", "更换背景", LucideIcons.ImagePlus, enabled = io.github.artcraftandroid.capcraft.ui.editor.panels.cutoutOn(vm, clip)) {
             vm.panel = Panel.Background(0)
         },
         // the background kept and the person taken away instead, or back again
-        Tool("invertcut", "Invert", LucideIcons.Contrast, enabled = io.github.artcraftandroid.capcraft.ui.editor.panels.cutoutOn(vm, clip)) {
+        Tool("invertcut", "反转", LucideIcons.Contrast, enabled = io.github.artcraftandroid.capcraft.ui.editor.panels.cutoutOn(vm, clip)) {
             vm.invertCutout(clip)
         },
     )
@@ -386,7 +386,7 @@ private fun clipSubTools(vm: EditorViewModel, clip: ClipView, level: String): Li
 private fun clipTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers: Pickers): List<Tool> {
     val tools = ownTools(vm, clip, row, pickers)
     if (row == RowKind.MAIN) {
-        return tools + Tool("multiselect", "Multi-select", LucideIcons.SquareCheckBig) {
+        return tools + Tool("multiselect", "多选", LucideIcons.SquareCheckBig) {
             vm.select(null)
             vm.chosen = setOf(clip.id)
         }
@@ -396,13 +396,13 @@ private fun clipTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers
     return buildList {
         addAll(tools)
         if (none { it.id == "multiselect" }) {
-            add(Tool("multiselect", "Multi-select", LucideIcons.SquareCheckBig) {
+            add(Tool("multiselect", "多选", LucideIcons.SquareCheckBig) {
                 vm.select(null)
                 vm.chosen = setOf(clip.id)
             })
         }
         if (grouped) {
-            add(Tool("ungroup", "Ungroup", LucideIcons.Unlink2) {
+            add(Tool("ungroup", "取消编组", LucideIcons.Unlink2) {
                 vm.edit(select = { clip.id }) { ungroup(clip.id) }
                 vm.message = "Ungrouped"
             })
@@ -413,45 +413,45 @@ private fun clipTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers
 private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers: Pickers): List<Tool> {
     val inside = vm.playhead > clip.startUs + 30_000 && vm.playhead < clip.startUs + clip.durationUs - 30_000
     // always offered, as the reference does; at a clip's very edge there is nothing to cut
-    val split = Tool("split", "Split", LucideIcons.SquareSplitHorizontal) {
-        if (inside) vm.edit { split(listOf(clip.id), vm.playhead) } else vm.message = "Move the playhead inside the clip to split it"
+    val split = Tool("split", "分割", LucideIcons.SquareSplitHorizontal) {
+        if (inside) vm.edit { split(listOf(clip.id), vm.playhead) } else vm.message = "将播放头移动到片段内部以进行分割"
     }
-    val delete = Tool("delete", "Delete", LucideIcons.Trash) {
+    val delete = Tool("delete", "删除", LucideIcons.Trash) {
         vm.edit { delete(listOf(clip.id)) }
         vm.select(null)
     }
-    val duplicate = Tool("duplicate", "Duplicate", LucideIcons.Copy) { vm.edit(select = { it.createdId.ifEmpty { null } }) { duplicate(clip.id) } }
+    val duplicate = Tool("duplicate", "复制", LucideIcons.Copy) { vm.edit(select = { it.createdId.ifEmpty { null } }) { duplicate(clip.id) } }
     // the curve between keyframes needs two of them
-    val graphs = Tool("graphs", "Graphs", LucideIcons.Spline, enabled = clip.keysUs.distinct().size >= 2) { vm.panel = Panel.Graphs }
-    val layer = Tool("layer", "Layers", LucideIcons.Layers) { vm.panel = Panel.Layer }
-    val timing = Tool("timing", "Timing", LucideIcons.Timer) { vm.panel = Panel.Timing }
+    val graphs = Tool("graphs", "曲线图", LucideIcons.Spline, enabled = clip.keysUs.distinct().size >= 2) { vm.panel = Panel.Graphs }
+    val layer = Tool("layer", "图层", LucideIcons.Layers) { vm.panel = Panel.Layer }
+    val timing = Tool("timing", "时间", LucideIcons.Timer) { vm.panel = Panel.Timing }
     if (clip.kind == "image" && row == RowKind.TEXT) {
         // a sticker, in the reference's order: another sticker set apart, the clip's edits, then the rest
         return listOfNotNull(
-            Tool("stickers", "Stickers", LucideIcons.Sticker) {
+            Tool("stickers", "贴纸", LucideIcons.Sticker) {
                 vm.select(null)
                 vm.panel = Panel.Stickers
             },
             divider("d-stickers"),
             split,
             timing,
-            Tool("animation", "Animations", LucideIcons.SquarePlay) { vm.panel = Panel.Animation },
-            Tool("stickereffects", "Effects", LucideIcons.Star) { vm.panel = Panel.Packages("effect", Panel.Target.Clip) },
-            Tool("behind", if (io.github.artcraftandroid.capcraft.ui.editor.panels.isBehindPeople(vm, clip)) "In front" else "Behind person", LucideIcons.UserRound) {
+            Tool("animation", "动画", LucideIcons.SquarePlay) { vm.panel = Panel.Animation },
+            Tool("stickereffects", "特效", LucideIcons.Star) { vm.panel = Panel.Packages("effect", Panel.Target.Clip) },
+            Tool("behind", if (io.github.artcraftandroid.capcraft.ui.editor.panels.isBehindPeople(vm, clip)) "前景" else "人物前方", LucideIcons.UserRound) {
                 io.github.artcraftandroid.capcraft.ui.editor.panels.toggleBehindPeople(vm, clip)
             },
             duplicate,
             delete,
-            Tool("mirror", "Mirror", LucideIcons.FlipVertical2) { vm.mirror(clip) },
+            Tool("mirror", "镜像", LucideIcons.FlipVertical2) { vm.mirror(clip) },
             divider("d-stickermore"),
             // several titles and stickers at once, starting with this one
-            Tool("multiselect", "Multi-select", LucideIcons.SquareCheckBig) {
+            Tool("multiselect", "多选", LucideIcons.SquareCheckBig) {
                 vm.select(null)
                 vm.chosen = setOf(clip.id)
             },
-            Tool("basic", "Basic", LucideIcons.SlidersHorizontal) { vm.panel = Panel.Basic },
+            Tool("basic", "基础", LucideIcons.SlidersHorizontal) { vm.panel = Panel.Basic },
             layer,
-            Tool("tracking", "Tracking", LucideIcons.Crosshair) { vm.panel = Panel.Tracking },
+            Tool("tracking", "跟踪", LucideIcons.Crosshair) { vm.panel = Panel.Tracking },
             // the curve between keyframes, once there are two
             graphs.takeIf { it.enabled },
         )
@@ -460,14 +460,14 @@ private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers:
     if (clip.kind == "text" && clip.id in vm.captions) {
         return listOf(
             split,
-            Tool("style", "Style", LucideIcons.ALargeSmall) { vm.panel = Panel.Text(clip.id) },
+            Tool("style", "样式", LucideIcons.ALargeSmall) { vm.panel = Panel.Text(clip.id) },
             // every caption's words in one list
-            Tool("editcaptions", "Edit captions", LucideIcons.TextCursorInput) { vm.panel = Panel.BatchEdit },
-            Tool("highlight", "Highlight", LucideIcons.Paintbrush) { vm.panel = Panel.Highlight },
+            Tool("editcaptions", "编辑字幕", LucideIcons.TextCursorInput) { vm.panel = Panel.BatchEdit },
+            Tool("highlight", "高亮", LucideIcons.Paintbrush) { vm.panel = Panel.Highlight },
             duplicate,
             delete,
-            Tool("tts", "Text to speech", LucideIcons.AudioLines) { vm.panel = Panel.Speech(clip.id) },
-            Tool("basic", "Basic", LucideIcons.SlidersHorizontal) { vm.panel = Panel.Basic },
+            Tool("tts", "文字转语音", LucideIcons.AudioLines) { vm.panel = Panel.Speech(clip.id) },
+            Tool("basic", "基础", LucideIcons.SlidersHorizontal) { vm.panel = Panel.Basic },
             layer,
         )
     }
@@ -477,7 +477,7 @@ private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers:
             val main = row == RowKind.MAIN
             // over the video, the bar starts with another overlay, set apart, as the reference's does
             if (!main) {
-                add(Tool("addoverlay", "Add overlay", LucideIcons.SquarePlus) {
+                add(Tool("addoverlay", "添加叠加素材", LucideIcons.SquarePlus) {
                     vm.select(null)
                     pickers.single { vm.addFile(it, asAudio = false) }
                 })
@@ -488,30 +488,30 @@ private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers:
             // a picture with no sound of its own (none recorded, or taken out to a track) has no
             // Volume, and its Delete comes after Speed, as the reference lays such a clip's bar out
             val ownSound = video && (clip.audible || clip.muted) && !vm.extracted(clip)
-            if (ownSound) add(Tool("volume", "Volume", LucideIcons.Volume2) { vm.panel = Panel.Volume })
+            if (ownSound) add(Tool("volume", "音量", LucideIcons.Volume2) { vm.panel = Panel.Volume })
             // how an overlay mixes with what is under it, under the reference's name for it
-            if (!main) add(Tool("blend", "Splice", LucideIcons.Layers2) { vm.panel = Panel.Blend })
+            if (!main) add(Tool("blend", "混合", LucideIcons.Layers2) { vm.panel = Panel.Blend })
             if (main) {
-                add(Tool("animation", "Animations", LucideIcons.SquarePlay) { vm.panel = Panel.Animation })
-                add(Tool("effects", "Effects", LucideIcons.Star) { vm.clipLevel = "effects" })
+                add(Tool("animation", "动画", LucideIcons.SquarePlay) { vm.panel = Panel.Animation })
+                add(Tool("effects", "特效", LucideIcons.Star) { vm.clipLevel = "effects" })
                 if (ownSound || !video) add(delete)
             } else {
                 add(delete)
-                add(Tool("animation", "Animations", LucideIcons.SquarePlay) { vm.panel = Panel.Animation })
-                add(Tool("effects", "Effects", LucideIcons.Star) { vm.clipLevel = "effects" })
+                add(Tool("animation", "动画", LucideIcons.SquarePlay) { vm.panel = Panel.Animation })
+                add(Tool("effects", "特效", LucideIcons.Star) { vm.clipLevel = "effects" })
             }
-            if (video) add(Tool("speed", "Speed", LucideIcons.Gauge) { vm.clipLevel = "speed" })
+            if (video) add(Tool("speed", "速度", LucideIcons.Gauge) { vm.clipLevel = "speed" })
             if (main && video && !ownSound) add(delete)
-            if (video) add(Tool("beats", "Beats", LucideIcons.Flag, enabled = clip.audible) { vm.panel = Panel.Beats })
+            if (video) add(Tool("beats", "节拍", LucideIcons.Flag, enabled = clip.audible) { vm.panel = Panel.Beats })
             add(Tool("crop", "Crop", LucideIcons.Crop) { vm.panel = Panel.Crop })
             add(duplicate)
             add(Tool("replace", "Replace", LucideIcons.Repeat) { pickers.single { vm.replace(clip, it) } })
             // a live photo's picture moves: its video takes its place
             if (!video) add(Tool("live", "Live photo", LucideIcons.ImagePlay) { vm.playLive(clip) })
-            if (main) add(Tool("tooverlay", "Overlay", LucideIcons.Shuffle) { vm.switchToOverlay(clip) })
+            if (main) add(Tool("tooverlay", "画中画", LucideIcons.Shuffle) { vm.switchToOverlay(clip) })
             else add(Tool("tomain", "Maintrack", LucideIcons.Shuffle) { vm.switchToMain(clip) })
-            add(Tool("adjust", "Adjust", LucideIcons.Settings2) { vm.panel = Panel.Adjust })
-            add(Tool("filters", "Filters", LucideIcons.Blend) { vm.panel = Panel.Packages("filter", Panel.Target.Clip) })
+            add(Tool("adjust", "调整", LucideIcons.Settings2) { vm.panel = Panel.Adjust })
+            add(Tool("filters", "滤镜", LucideIcons.Blend) { vm.panel = Panel.Packages("filter", Panel.Target.Clip) })
             add(divider("d-look"))
             add(Tool("retouch", "Retouch", LucideIcons.Smile) { vm.panel = Panel.Retouch })
             // a clearer copy, for photos and footage alike
@@ -523,7 +523,7 @@ private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers:
             if (main) add(Tool("relight", "Relight", LucideIcons.Lightbulb) { vm.panel = Panel.Relight })
             // the light people want, the rest left alone
             if (main) add(Tool("lightpeople", "Light people", LucideIcons.SunMedium) { vm.panel = Panel.LightPeople })
-            add(Tool("atmosphere", "Atmosphere", LucideIcons.Wind) { vm.panel = Panel.Atmosphere })
+            add(Tool("atmosphere", "氛围效果", LucideIcons.Wind) { vm.panel = Panel.Atmosphere })
             add(Tool("opacity", "Opacity", LucideIcons.Droplet) { vm.panel = Panel.Opacity })
             if (video) add(Tool("motionblur", "Motion blur", LucideIcons.Wind) { vm.panel = Panel.MotionBlur })
             add(divider("d-shape"))
@@ -535,7 +535,7 @@ private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers:
                 add(Tool("cameratracking", "Camera tracking", LucideIcons.Crosshair) { vm.panel = Panel.CameraTracking })
             }
             // a picture over the video can follow what is under it
-            if (!main) add(Tool("tracking", "Tracking", LucideIcons.Crosshair) { vm.panel = Panel.Tracking })
+            if (!main) add(Tool("tracking", "跟踪", LucideIcons.Crosshair) { vm.panel = Panel.Tracking })
             if (video) {
                 add(divider("d-sound"))
                 // once its sound is out on a track of its own, the clip offers only to take it back
@@ -561,18 +561,18 @@ private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers:
                 val free = vm.unlinked(clip)
                 add(Tool("unlink", if (free) "Link" else "Unlink", if (free) LucideIcons.Link2 else LucideIcons.Unlink2) { vm.toggleUnlinked(clip) })
             }
-            if (video) add(Tool("transcript", "Transcript", LucideIcons.FileText) { vm.panel = Panel.Transcript })
+            if (video) add(Tool("transcript", "转录文本", LucideIcons.FileText) { vm.panel = Panel.Transcript })
             add(graphs)
         }
         // in the reference's order: a new recording set apart, the clip's edits, then its sound
         "audio" -> listOf(
-            Tool("record", "Record", LucideIcons.Mic) {
+            Tool("record", "录音", LucideIcons.Mic) {
                 vm.select(null)
                 vm.panel = Panel.Voiceover
             },
             divider("d-record"),
             split,
-            Tool("volume", "Volume", LucideIcons.Volume2) { vm.panel = Panel.Volume },
+            Tool("volume", "音量", LucideIcons.Volume2) { vm.panel = Panel.Volume },
             duplicate,
             delete,
             // another sound in its place, keeping where it sits and how long it plays
@@ -580,60 +580,60 @@ private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers:
                 vm.replacingSound = clip.id
                 vm.panel = Panel.Sounds
             },
-            Tool("beats", "Beats", LucideIcons.Flag) { vm.panel = Panel.Beats },
+            Tool("beats", "节拍", LucideIcons.Flag) { vm.panel = Panel.Beats },
             // the song made to end with the video, joined on the beat
             Tool("remix", "Fit to video", LucideIcons.Scissors) { vm.remixToFit(clip) },
             // turned down wherever the other clips speak
             Tool("duck", "Auto duck", LucideIcons.AudioWaveform) { vm.autoDuck(clip) },
             // a sound's speed is one ruler, no curve, as the reference has it
-            Tool("speed", "Speed", LucideIcons.Gauge) { vm.panel = Panel.Speed(curve = false) },
+            Tool("speed", "速度", LucideIcons.Gauge) { vm.panel = Panel.Speed(curve = false) },
             Tool("fade", "Fade", LucideIcons.ChartSpline) { vm.panel = Panel.Fade },
             Tool("isolate", "Isolate voice", LucideIcons.Speech) { vm.panel = Panel.IsolateVoice },
             Tool("voice", "Audio effects", LucideIcons.Headphones) { vm.panel = Panel.Packages("audio", Panel.Target.Clip) },
             Tool("enhance", "Enhance voice", LucideIcons.MicVocal) { vm.toggleCleaner(clip, "concat.enhance-voice", "Voice enhancement") },
             Tool("noise", "Reduce noise", LucideIcons.AudioWaveform) { vm.toggleCleaner(clip, "concat.denoise", "Noise reduction") },
-            Tool("transcript", "Transcript", LucideIcons.FileText) { vm.panel = Panel.Transcript },
+            Tool("transcript", "转录文本", LucideIcons.FileText) { vm.panel = Panel.Transcript },
         )
         "text", "shape" -> listOf(
             // a new title from here too, set apart, as the reference starts this bar
-            Tool("addtext", "Add text", LucideIcons.Type) {
+            Tool("addtext", "添加文字", LucideIcons.Type) {
                 vm.select(null)
                 vm.panel = Panel.Text(null)
             },
             divider("d-addtext"),
             split,
-            Tool("style", "Style", LucideIcons.ALargeSmall) { vm.panel = if (clip.kind == "shape") Panel.ShapeStyle else Panel.Text(clip.id) },
-            Tool("animation", "Animations", LucideIcons.SquarePlay) { vm.panel = Panel.Animation },
+            Tool("style", "样式", LucideIcons.ALargeSmall) { vm.panel = if (clip.kind == "shape") Panel.ShapeStyle else Panel.Text(clip.id) },
+            Tool("animation", "动画", LucideIcons.SquarePlay) { vm.panel = Panel.Animation },
             delete,
             duplicate,
             divider("d-texttools"),
-            Tool("tts", "Text to speech", LucideIcons.AudioLines, enabled = clip.kind == "text") { vm.panel = Panel.Speech(clip.id) },
+            Tool("tts", "文字转语音", LucideIcons.AudioLines, enabled = clip.kind == "text") { vm.panel = Panel.Speech(clip.id) },
             // on screen from the first frame to the last
             Tool("lasting", "Lasting text", LucideIcons.MoveHorizontal) {
                 vm.edit(select = { clip.id }) { lastingText(clip.id) }
                 vm.message = "The text now shows for the whole video"
             },
-            Tool("texteffects", "Effects", LucideIcons.WandSparkles, enabled = clip.kind == "text") { vm.panel = Panel.Text(clip.id, tab = 4) },
-            Tool("tracking", "Tracking", LucideIcons.Crosshair) { vm.panel = Panel.Tracking },
+            Tool("texteffects", "特效", LucideIcons.WandSparkles, enabled = clip.kind == "text") { vm.panel = Panel.Text(clip.id, tab = 4) },
+            Tool("tracking", "跟踪", LucideIcons.Crosshair) { vm.panel = Panel.Tracking },
             // one clip per line or sentence, each for its share of the time
             Tool("autosplit", "Auto split", LucideIcons.SquareSplitHorizontal, enabled = clip.kind == "text") {
                 vm.edit(select = { clip.id }) { autoSplitText(clip.id) }
             },
             layer,
             timing,
-            Tool("behind", if (io.github.artcraftandroid.capcraft.ui.editor.panels.isBehindPeople(vm, clip)) "In front" else "Behind person", LucideIcons.UserRound) {
+            Tool("behind", if (io.github.artcraftandroid.capcraft.ui.editor.panels.isBehindPeople(vm, clip)) "前景" else "人物前方", LucideIcons.UserRound) {
                 io.github.artcraftandroid.capcraft.ui.editor.panels.toggleBehindPeople(vm, clip)
             },
-            Tool("basic", "Basic", LucideIcons.SlidersHorizontal) { vm.panel = Panel.Basic },
+            Tool("basic", "基础", LucideIcons.SlidersHorizontal) { vm.panel = Panel.Basic },
             // several titles and stickers at once, starting with this one
-            Tool("multiselect", "Multi-select", LucideIcons.SquareCheckBig) {
+            Tool("multiselect", "多选", LucideIcons.SquareCheckBig) {
                 vm.select(null)
                 vm.chosen = setOf(clip.id)
             },
         )
         // a look on its row: its strength or its settings, then the clip tools
         else -> if (row == RowKind.FILTER) listOf(
-            Tool("adjust", "Adjust", LucideIcons.SlidersHorizontal) {
+            Tool("adjust", "调整", LucideIcons.SlidersHorizontal) {
                 vm.panel = if (clip.effectId == "concat.adjust") Panel.Adjust else Panel.Packages("filter", Panel.Target.Layer)
             },
             duplicate,
@@ -642,7 +642,7 @@ private fun ownTools(vm: EditorViewModel, clip: ClipView, row: RowKind, pickers:
             delete,
         ) else listOf(
             // an effect: its settings, another in its place, and what it treats
-            Tool("adjust", "Adjust", LucideIcons.SlidersHorizontal) { vm.panel = Panel.LayerAdjust },
+            Tool("adjust", "调整", LucideIcons.SlidersHorizontal) { vm.panel = Panel.LayerAdjust },
             Tool("replace", "Replace", LucideIcons.Replace) { vm.panel = Panel.Packages("effect", Panel.Target.Layer) },
             duplicate,
             Tool("object", "Object", LucideIcons.Database) { vm.panel = Panel.EffectObject },
@@ -674,7 +674,7 @@ fun ToolSearch(vm: EditorViewModel, onClose: () -> Unit) {
         for (group in listOf("audio", "text", "effects", "overlay", "captions", "filters", "background")) addAll(groupTools(vm, group, pickers))
     }.filter { !it.divider && it.enabled }.distinctBy { it.label }
     val effects = io.github.artcraftandroid.capcraft.ui.editor.panels.rememberPackages("effect")
-        .filter { it.category !in setOf("Cutout", "Color", "Basic", "Text") }
+        .filter { it.category !in setOf("Cutout", "颜色", "基础", "文字") }
     val words = query.trim()
     val tools = if (words.isEmpty()) emptyList() else all.filter { it.label.contains(words, ignoreCase = true) }
     val found = if (words.isEmpty()) emptyList() else effects.filter { it.name.contains(words, ignoreCase = true) }.take(8)
@@ -708,10 +708,10 @@ fun ToolSearch(vm: EditorViewModel, onClose: () -> Unit) {
                 if (words.isEmpty()) {
                     SearchHeading("Recommended")
                     listOf<Pair<String, () -> Unit>>(
-                        "Flip video horizontally" to { target()?.let { vm.mirror(it) } ?: run { vm.message = "Add a clip first" } },
+                        "Flip video horizontally" to { target()?.let { vm.mirror(it) } ?: run { vm.message = "请先添加片段" } },
                         "Add auto captions" to { vm.panel = Panel.Captions },
                         "Reduce video noise" to {
-                            target()?.let { vm.toggleCleaner(it, "concat.denoise", "Noise reduction") } ?: run { vm.message = "Add a clip first" }
+                            target()?.let { vm.toggleCleaner(it, "concat.denoise", "Noise reduction") } ?: run { vm.message = "请先添加片段" }
                         },
                     ).forEach { (line, act) ->
                         Text(
@@ -722,7 +722,7 @@ fun ToolSearch(vm: EditorViewModel, onClose: () -> Unit) {
                     }
                     Spacer(Modifier.height(18.dp))
                     SearchHeading("Trending")
-                    SearchSubheading("Effects") {
+                    SearchSubheading("特效") {
                         onClose()
                         vm.panel = Panel.Packages("effect", Panel.Target.Layer)
                     }
@@ -731,7 +731,7 @@ fun ToolSearch(vm: EditorViewModel, onClose: () -> Unit) {
                         vm.addLayer(e.id, e.name)
                     }
                     Spacer(Modifier.height(16.dp))
-                    SearchSubheading("Sounds") {
+                    SearchSubheading("音效") {
                         onClose()
                         vm.panel = Panel.SoundFx
                     }
@@ -775,7 +775,7 @@ fun ToolSearch(vm: EditorViewModel, onClose: () -> Unit) {
                     }
                     if (found.isNotEmpty()) {
                         Spacer(Modifier.height(12.dp))
-                        SearchHeading("Effects")
+                        SearchHeading("特效")
                         found.chunked(4).forEach { line ->
                             EffectRow(vm, line) { e ->
                                 onClose()
