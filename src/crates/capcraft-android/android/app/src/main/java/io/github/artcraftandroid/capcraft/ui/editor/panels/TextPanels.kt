@@ -92,17 +92,17 @@ val FONTS = listOf(
 )
 
 /** The kinds the Fonts tab sorts the families into, the first showing them all. */
-private val FONT_KINDS = listOf("All", "Clean", "Bold", "Script", "Serif", "Fun")
+private val FONT_KINDS = listOf("全部", "简洁", "粗体", "手写", "衬线", "趣味")
 
 /** Which kind each bundled family is shown under, besides All. */
 private val FONT_KIND = mapOf(
-    "Inter" to "Clean", "Montserrat" to "Clean", "Hanken Grotesk" to "Clean", "Space Grotesk" to "Clean", "Kosugi Maru" to "Clean",
-    "Anton" to "Bold", "Bebas Neue" to "Bold", "Archivo Black" to "Bold", "Staatliches" to "Bold", "Secular One" to "Bold",
-    "Hammersmith One" to "Bold", "Londrina Solid" to "Bold", "Black Ops One" to "Bold", "Germania One" to "Bold",
-    "Lobster" to "Script", "Pacifico" to "Script", "Caveat Brush" to "Script", "Shadows Into Light Two" to "Script", "Permanent Marker" to "Script",
-    "Abril Fatface" to "Serif", "DM Serif Display" to "Serif", "Atomic Age" to "Serif",
-    "Bangers" to "Fun", "Pixelify Sans" to "Fun", "Rubik Scribble" to "Fun", "Emilys Candy" to "Fun", "Frijole" to "Fun",
-    "Mystery Quest" to "Fun", "Bungee Hairline" to "Fun", "Zen Tokyo Zoo" to "Fun",
+    "Inter" to "简洁", "Montserrat" to "简洁", "Hanken Grotesk" to "简洁", "Space Grotesk" to "简洁", "Kosugi Maru" to "简洁",
+    "Anton" to "粗体", "Bebas Neue" to "粗体", "Archivo Black" to "粗体", "Staatliches" to "粗体", "Secular One" to "粗体",
+    "Hammersmith One" to "粗体", "Londrina Solid" to "粗体", "Black Ops One" to "粗体", "Germania One" to "粗体",
+    "Lobster" to "手写", "Pacifico" to "手写", "Caveat Brush" to "手写", "Shadows Into Light Two" to "手写", "Permanent Marker" to "手写",
+    "Abril Fatface" to "衬线", "DM Serif Display" to "衬线", "Atomic Age" to "衬线",
+    "Bangers" to "趣味", "Pixelify Sans" to "趣味", "Rubik Scribble" to "趣味", "Emilys Candy" to "趣味", "Frijole" to "趣味",
+    "Mystery Quest" to "趣味", "Bungee Hairline" to "趣味", "Zen Tokyo Zoo" to "趣味",
 )
 
 /** The engine's font families, each with a Compose font made from its file (null until loaded). */
@@ -170,7 +170,7 @@ private fun MoreFonts(vm: EditorViewModel) {
                 }
             }
 
-            override fun onDone(result: io.github.artcraftandroid.capcraft.core.TimelineView?) = over("More fonts added")
+            override fun onDone(result: io.github.artcraftandroid.capcraft.core.TimelineView?) = over("已添加更多字体")
 
             override fun onFailed(message: String) = over(message)
         }
@@ -178,7 +178,7 @@ private fun MoreFonts(vm: EditorViewModel) {
     val p = job
     WideButton(if (p != null) "Downloading ${(p * 100).toInt()}%" else "More fonts (%.0f MB)".format(left / 1_048_576.0), p == null) {
         job = 0f
-        runCatching { io.github.artcraftandroid.capcraft.core.downloadMoreFonts(listener) }.onFailure { job = null; vm.message = it.message ?: "Could not download the fonts" }
+        runCatching { io.github.artcraftandroid.capcraft.core.downloadMoreFonts(listener) }.onFailure { job = null; vm.message = it.message ?: "字体下载失败" }
     }
 }
 
@@ -294,7 +294,7 @@ fun TextPanel(vm: EditorViewModel, clipId: String?, startTab: Int = 3) {
     // favourites: a long press on a template or a font keeps it under the bookmark
     val context = androidx.compose.ui.platform.LocalContext.current
     fun kept(on: Boolean) {
-        vm.message = if (on) "Added to favorites" else "Removed from favorites"
+        vm.message = if (on) "已添加到收藏" else "已从收藏中移除"
     }
 
     // the words open in a full-screen editor from the field's expand button
@@ -340,7 +340,7 @@ fun TextPanel(vm: EditorViewModel, clipId: String?, startTab: Int = 3) {
                 decorationBox = { inner ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.weight(1f)) {
-                            if (text.isEmpty()) Text("Enter text", style = Type.Body.copy(fontSize = 16.sp, color = Palette.TextSecondary))
+                            if (text.isEmpty()) Text("输入文字", style = Type.Body.copy(fontSize = 16.sp, color = Palette.TextSecondary))
                             inner()
                         }
                         Glyph(
@@ -351,7 +351,7 @@ fun TextPanel(vm: EditorViewModel, clipId: String?, startTab: Int = 3) {
                                 expanded = true
                             },
                             size = 18.dp,
-                            description = "Expand",
+                            description = "展开",
                         )
                     }
                 },
@@ -364,11 +364,11 @@ fun TextPanel(vm: EditorViewModel, clipId: String?, startTab: Int = 3) {
                     vm.panel = null
                 },
                 contentAlignment = Alignment.Center,
-            ) { Glyph(LucideIcons.Check, Palette.DockText, size = 26.dp, description = "Done") }
+            ) { Glyph(LucideIcons.Check, Palette.DockText, size = 26.dp, description = "完成") }
         }
         // the sheet's handle
         Box(Modifier.align(Alignment.CenterHorizontally).padding(vertical = 6.dp).size(36.dp, 4.dp).clip(RoundedCornerShape(2.dp)).background(Color(0xFF555555)))
-        Tabs(listOf("Templates", "Fonts", "Styles", "Effects", "Animations", "Bubbles"), tab - 1) {
+        Tabs(listOf("模板", "字体", "样式", "特效", "动画", "气泡"), tab - 1) {
             tab = it + 1
             keyboard?.hide()
             focusManager.clearFocus()
@@ -386,7 +386,7 @@ fun TextPanel(vm: EditorViewModel, clipId: String?, startTab: Int = 3) {
                     contentAlignment = Alignment.Center,
                 ) { if (toAll) Box(Modifier.size(7.dp).clip(CircleShape).background(Color.Black)) }
                 Spacer(Modifier.width(8.dp))
-                Text("Apply to all captions", style = Type.Small.copy(color = Palette.Text))
+                Text("应用到所有字幕", style = Type.Small.copy(color = Palette.Text))
             }
         }
         if (tab != 0) {
@@ -430,7 +430,7 @@ fun TextPanel(vm: EditorViewModel, clipId: String?, startTab: Int = 3) {
                         var fontQuery by remember { mutableStateOf<String?>(null) }
                         var keptFonts by remember { mutableStateOf(false) }
                         val keptSet = remember(Favorites.version.intValue) { Favorites.of(context, "font") }
-                        KindsRow(FONT_KINDS, fontKind, fontQuery, { fontKind = it; keptFonts = false }, { fontQuery = it }, "Search fonts", keptFonts) { keptFonts = true }
+                        KindsRow(FONT_KINDS, fontKind, fontQuery, { fontKind = it; keptFonts = false }, { fontQuery = it }, "搜索字体", keptFonts) { keptFonts = true }
                         // the Import tile first (the empty name), then the project's own fonts, then everyone's;
                         // a kind shows its own families alone
                         val everyone = bundled.filter { b -> own.none { it.first == b.first } }
@@ -453,7 +453,7 @@ fun TextPanel(vm: EditorViewModel, clipId: String?, startTab: Int = 3) {
                                             verticalArrangement = Arrangement.Center,
                                         ) {
                                             Glyph(LucideIcons.Plus, Palette.Text, size = 16.dp)
-                                            Text("Import", style = Type.Small.copy(color = Palette.Text, fontSize = 11.sp))
+                                            Text("导入", style = Type.Small.copy(color = Palette.Text, fontSize = 11.sp))
                                         }
                                         return@forEach
                                     }
@@ -493,7 +493,7 @@ fun TextPanel(vm: EditorViewModel, clipId: String?, startTab: Int = 3) {
                     5 -> {
                         val made = id
                         if (made == null) {
-                            Text("Type the words first, then choose how they come and go.", style = Type.Small, modifier = Modifier.padding(top = 16.dp))
+                            Text("先输入文字，再选择文字的入场和出场动画。", style = Type.Small, modifier = Modifier.padding(top = 16.dp))
                         } else {
                             AnimationChoices(vm, made)
                         }
@@ -538,7 +538,7 @@ internal fun FullTextEditor(start: String, onBack: () -> Unit, onDone: (String) 
         Column(Modifier.fillMaxSize().background(Color(0xFF1E1E1E)).statusBarsPadding().navigationBarsPadding().imePadding()) {
             Row(Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(44.dp).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
-                    Glyph(LucideIcons.ChevronLeft, Palette.Text, size = 26.dp, description = "Back")
+                    Glyph(LucideIcons.ChevronLeft, Palette.Text, size = 26.dp, description = "返回")
                 }
                 Spacer(Modifier.weight(1f))
                 Box(
@@ -557,7 +557,7 @@ internal fun FullTextEditor(start: String, onBack: () -> Unit, onDone: (String) 
                 ) { Glyph(LucideIcons.Redo2, if (ahead.isNotEmpty()) Palette.Text else Palette.Disabled, size = 22.dp, description = "Redo") }
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "Done",
+                    "完成",
                     style = Type.BodyStrong.copy(fontSize = 14.sp, color = Color(0xFF111111)),
                     modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(Color.White).clickable { onDone(words) }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -753,35 +753,35 @@ private class WordArt(
 }
 
 /** The kinds the Effects tab sorts its looks into; the first shows them all. */
-private val WORD_ART_KINDS = listOf("Trending", "Glow", "Outline", "Gradient", "Comic")
+private val WORD_ART_KINDS = listOf("热门", "发光", "描边", "渐变", "漫画")
 
 private val WORD_ART = listOf(
-    WordArt("Outline", "Outline", stroke = "#000000"),
-    WordArt("Neon Blue", "Glow", glow = "#00b4ff"),
-    WordArt("Neon Pink", "Glow", glow = "#ff2fb9"),
-    WordArt("Neon Green", "Glow", glow = "#39ff14"),
-    WordArt("Halo", "Glow", glow = "#ffffff", stroke = "#9e9e9e"),
-    WordArt("Double", "Outline", stroke = "#000000", outline = "#ffd400"),
-    WordArt("Fire", "Gradient", gradient = "#ffe259" to "#ff3d00", stroke = "#7a1f00", glow = "#ff6a00"),
-    WordArt("Gold", "Gradient", gradient = "#fff3b0" to "#d4a017", stroke = "#6b4e00", shadow = "#000000"),
-    WordArt("Ice", "Gradient", gradient = "#ffffff" to "#7fd8ff", stroke = "#0a4c8c", glow = "#9be7ff"),
-    WordArt("Candy", "Outline", fill = "#ff8fcf", stroke = "#ffffff", outline = "#ff2f92"),
-    WordArt("Sunset", "Gradient", gradient = "#ffb347" to "#ff4e8a", stroke = "#ffffff"),
-    WordArt("Ocean", "Gradient", gradient = "#6ee7f9" to "#2563eb", outline = "#ffffff"),
-    WordArt("Comic", "Comic", fill = "#ffe600", stroke = "#000000", outline = "#ffffff", shadow = "#000000"),
-    WordArt("Retro", "Comic", fill = "#ffd166", stroke = "#ef476f", shadow = "#073b4c"),
-    WordArt("Pop", "Comic", fill = "#ff1744", stroke = "#ffffff", outline = "#000000"),
-    WordArt("Violet", "Glow", fill = "#e1bee7", stroke = "#7b1fa2", glow = "#b388ff"),
-    WordArt("Mint", "Glow", stroke = "#00bfa5", glow = "#64ffda"),
-    WordArt("Drop Shadow", "Outline", shadow = "#000000"),
-    WordArt("Ink", "Outline", fill = "#000000", stroke = "#ffffff", outline = "#000000"),
-    WordArt("Lime", "Gradient", gradient = "#eeff41" to "#00e676", stroke = "#1b5e20"),
-    WordArt("Prism", "Gradient", gradient = "#ff5acd" to "#5ad8ff", stroke = "#ffffff"),
-    WordArt("Chrome", "Gradient", gradient = "#ffffff" to "#8e9eab", stroke = "#263238", shadow = "#000000"),
-    WordArt("Lava", "Glow", gradient = "#ffc107" to "#d50000", glow = "#ff3d00"),
-    WordArt("Night", "Glow", outline = "#1a237e", glow = "#3d5afe"),
-    WordArt("Bubblegum", "Comic", fill = "#ffffff", stroke = "#ff4081", outline = "#ffffff", shadow = "#c51162"),
-    WordArt("Toxic", "Comic", fill = "#b2ff59", stroke = "#000000", glow = "#76ff03"),
+    WordArt("描边", "描边", stroke = "#000000"),
+    WordArt("Neon Blue", "发光", glow = "#00b4ff"),
+    WordArt("Neon Pink", "发光", glow = "#ff2fb9"),
+    WordArt("Neon Green", "发光", glow = "#39ff14"),
+    WordArt("光晕", "发光", glow = "#ffffff", stroke = "#9e9e9e"),
+    WordArt("双重描边", "描边", stroke = "#000000", outline = "#ffd400"),
+    WordArt("火焰", "渐变", gradient = "#ffe259" to "#ff3d00", stroke = "#7a1f00", glow = "#ff6a00"),
+    WordArt("金色", "渐变", gradient = "#fff3b0" to "#d4a017", stroke = "#6b4e00", shadow = "#000000"),
+    WordArt("冰晶", "渐变", gradient = "#ffffff" to "#7fd8ff", stroke = "#0a4c8c", glow = "#9be7ff"),
+    WordArt("糖果", "描边", fill = "#ff8fcf", stroke = "#ffffff", outline = "#ff2f92"),
+    WordArt("日落", "渐变", gradient = "#ffb347" to "#ff4e8a", stroke = "#ffffff"),
+    WordArt("海洋", "渐变", gradient = "#6ee7f9" to "#2563eb", outline = "#ffffff"),
+    WordArt("漫画", "漫画", fill = "#ffe600", stroke = "#000000", outline = "#ffffff", shadow = "#000000"),
+    WordArt("复古", "漫画", fill = "#ffd166", stroke = "#ef476f", shadow = "#073b4c"),
+    WordArt("流行", "漫画", fill = "#ff1744", stroke = "#ffffff", outline = "#000000"),
+    WordArt("紫罗兰", "发光", fill = "#e1bee7", stroke = "#7b1fa2", glow = "#b388ff"),
+    WordArt("Mint", "发光", stroke = "#00bfa5", glow = "#64ffda"),
+    WordArt("Drop Shadow", "描边", shadow = "#000000"),
+    WordArt("Ink", "描边", fill = "#000000", stroke = "#ffffff", outline = "#000000"),
+    WordArt("Lime", "渐变", gradient = "#eeff41" to "#00e676", stroke = "#1b5e20"),
+    WordArt("Prism", "渐变", gradient = "#ff5acd" to "#5ad8ff", stroke = "#ffffff"),
+    WordArt("Chrome", "渐变", gradient = "#ffffff" to "#8e9eab", stroke = "#263238", shadow = "#000000"),
+    WordArt("Lava", "发光", gradient = "#ffc107" to "#d50000", glow = "#ff3d00"),
+    WordArt("Night", "发光", outline = "#1a237e", glow = "#3d5afe"),
+    WordArt("Bubblegum", "漫画", fill = "#ffffff", stroke = "#ff4081", outline = "#ffffff", shadow = "#c51162"),
+    WordArt("Toxic", "漫画", fill = "#b2ff59", stroke = "#000000", glow = "#76ff03"),
 )
 
 /** The look [style] and the title's packages add up to, as a [WordArt.signature]. */
@@ -868,7 +868,7 @@ private fun WordArtTab(vm: EditorViewModel, clipId: String?, style: JSONObject, 
                                 onClick = { wear(look) },
                                 onLongClick = {
                                     if (look != null) {
-                                        vm.message = if (Favorites.toggle(context, "wordart", look.name)) "Added to favorites" else "Removed from favorites"
+                                        vm.message = if (Favorites.toggle(context, "wordart", look.name)) "已添加到收藏" else "已从收藏中移除"
                                     }
                                 },
                             ),
@@ -935,7 +935,7 @@ private class TextTemplate(
 }
 
 /** The kinds the Templates tab sorts its titles into; the first shows them all. */
-private val TEMPLATE_KINDS = listOf("Trending", "Reels", "Bold", "Script", "Labels", "Fun", "Classic")
+private val TEMPLATE_KINDS = listOf("热门", "Reels", "粗体", "手写", "Labels", "趣味", "Classic")
 
 /** The plain title every other template departs from. */
 private val DEFAULT_TEMPLATE = TextTemplate("", "Inter", "#ffffff", weight = 700)
@@ -944,63 +944,63 @@ private val TEMPLATES = listOf(
     DEFAULT_TEMPLATE,
     // as high-end reels set their titles now: an editorial serif, heavy capitals, quiet spaced words
     TextTemplate("Golden hour", "Instrument Serif", "#ffffff", italic = true, size = 0.07, kinds = setOf("Reels")),
-    TextTemplate("NEW ERA", "Poppins", "#ffffff", weight = 900, upper = true, tracking = -0.002, size = 0.08, kinds = setOf("Reels", "Bold")),
+    TextTemplate("NEW ERA", "Poppins", "#ffffff", weight = 900, upper = true, tracking = -0.002, size = 0.08, kinds = setOf("Reels", "粗体")),
     TextTemplate("the little things", "Instrument Serif", "#f5e6c8", size = 0.055, kinds = setOf("Reels")),
-    TextTemplate("WEEKEND", "Bowlby One SC", "#ffffff", gradient = "#ffb347", size = 0.08, kinds = setOf("Reels", "Bold")),
+    TextTemplate("WEEKEND", "Bowlby One SC", "#ffffff", gradient = "#ffb347", size = 0.08, kinds = setOf("Reels", "粗体")),
     TextTemplate("S T U D I O", "DM Mono", "#ffffff", upper = true, tracking = 0.012, size = 0.03, kinds = setOf("Reels")),
     TextTemplate("Paris", "Italiana", "#ffffff", tracking = 0.006, size = 0.07, kinds = setOf("Reels", "Classic")),
-    TextTemplate("NIGHT", "Monoton", "#ff4fd8", size = 0.08, kinds = setOf("Reels", "Fun")),
-    TextTemplate("Sunday", "Shrikhand", "#ffd166", stroke = "#7a2e00", size = 0.07, kinds = setOf("Reels", "Script")),
+    TextTemplate("NIGHT", "Monoton", "#ff4fd8", size = 0.08, kinds = setOf("Reels", "趣味")),
+    TextTemplate("Sunday", "Shrikhand", "#ffd166", stroke = "#7a2e00", size = 0.07, kinds = setOf("Reels", "手写")),
     TextTemplate("POV", "Rubik Mono One", "#000000", plate = "#ffffff", upper = true, size = 0.04, kinds = setOf("Reels", "Labels")),
     TextTemplate("moodboard", "Major Mono Display", "#ffffff", size = 0.045, kinds = setOf("Reels")),
     TextTemplate("Day in my life", "Poppins", "#ffffff", weight = 800, gradient = "#9be7ff", size = 0.05, kinds = setOf("Reels")),
-    TextTemplate("RIGHT NOW", "Righteous", "#ffffff", stroke = "#000000", upper = true, size = 0.06, kinds = setOf("Reels", "Fun")),
-    TextTemplate("BIG NEWS", "Anton", "#ffffff", stroke = "#000000", kinds = setOf("Bold")),
-    TextTemplate("Weekend", "Pacifico", "#ffd166", shadow = true, kinds = setOf("Script")),
-    TextTemplate("SALE", "Bebas Neue", "#ffffff", plate = "#ff2d55", kinds = setOf("Labels", "Bold")),
+    TextTemplate("RIGHT NOW", "Righteous", "#ffffff", stroke = "#000000", upper = true, size = 0.06, kinds = setOf("Reels", "趣味")),
+    TextTemplate("BIG NEWS", "Anton", "#ffffff", stroke = "#000000", kinds = setOf("粗体")),
+    TextTemplate("Weekend", "Pacifico", "#ffd166", shadow = true, kinds = setOf("手写")),
+    TextTemplate("SALE", "Bebas Neue", "#ffffff", plate = "#ff2d55", kinds = setOf("Labels", "粗体")),
     TextTemplate("Day One", "DM Serif Display", "#ffffff", italic = true, shadow = true, kinds = setOf("Classic")),
-    TextTemplate("WOW!", "Bangers", "#ffcc00", stroke = "#000000", kinds = setOf("Fun", "Bold")),
-    TextTemplate("Road trip", "Permanent Marker", "#ffffff", shadow = true, kinds = setOf("Fun")),
-    TextTemplate("Cheers", "Lobster", "#ff8fab", stroke = "#ffffff", kinds = setOf("Script")),
+    TextTemplate("WOW!", "Bangers", "#ffcc00", stroke = "#000000", kinds = setOf("趣味", "粗体")),
+    TextTemplate("Road trip", "Permanent Marker", "#ffffff", shadow = true, kinds = setOf("趣味")),
+    TextTemplate("Cheers", "Lobster", "#ff8fab", stroke = "#ffffff", kinds = setOf("手写")),
     TextTemplate("LIVE", "Archivo Black", "#ffffff", plate = "#e53935", kinds = setOf("Labels")),
-    TextTemplate("TOP 5", "Montserrat", "#00e5ff", weight = 900, stroke = "#000000", kinds = setOf("Bold")),
-    TextTemplate("Sunday", "Caveat Brush", "#ffffff", shadow = true, kinds = setOf("Script")),
-    TextTemplate("Oh no!", "Londrina Solid", "#ff5252", weight = 900, stroke = "#ffffff", kinds = setOf("Fun")),
+    TextTemplate("TOP 5", "Montserrat", "#00e5ff", weight = 900, stroke = "#000000", kinds = setOf("粗体")),
+    TextTemplate("Sunday", "Caveat Brush", "#ffffff", shadow = true, kinds = setOf("手写")),
+    TextTemplate("Oh no!", "Londrina Solid", "#ff5252", weight = 900, stroke = "#ffffff", kinds = setOf("趣味")),
     TextTemplate("Ready?", "Space Grotesk", "#000000", weight = 700, plate = "#ffd600", kinds = setOf("Labels")),
-    TextTemplate("vibes", "Rubik Scribble", "#e1bee7", shadow = true, kinds = setOf("Fun", "Script")),
+    TextTemplate("vibes", "Rubik Scribble", "#e1bee7", shadow = true, kinds = setOf("趣味", "手写")),
     TextTemplate("Chapter 1", "Abril Fatface", "#ffffff", plate = "#000000", kinds = setOf("Classic", "Labels")),
-    TextTemplate("THE END", "Staatliches", "#ffffff", shadow = true, kinds = setOf("Classic", "Bold")),
-    TextTemplate("Level up", "Pixelify Sans", "#69f0ae", stroke = "#000000", kinds = setOf("Fun")),
+    TextTemplate("THE END", "Staatliches", "#ffffff", shadow = true, kinds = setOf("Classic", "粗体")),
+    TextTemplate("Level up", "Pixelify Sans", "#69f0ae", stroke = "#000000", kinds = setOf("趣味")),
     TextTemplate("New post", "Montserrat", "#ffffff", weight = 900, plate = "#7c4dff", kinds = setOf("Labels")),
-    TextTemplate("Thank you", "Pacifico", "#ffffff", stroke = "#ff4081", kinds = setOf("Script")),
-    TextTemplate("SUMMER", "Anton", "#ffeb3b", shadow = true, kinds = setOf("Bold")),
+    TextTemplate("Thank you", "Pacifico", "#ffffff", stroke = "#ff4081", kinds = setOf("手写")),
+    TextTemplate("SUMMER", "Anton", "#ffeb3b", shadow = true, kinds = setOf("粗体")),
     TextTemplate("Coming soon", "Space Grotesk", "#ffffff", weight = 700, plate = "#222222", kinds = setOf("Labels", "Classic")),
-    TextTemplate("GAME OVER", "Pixelify Sans", "#ff5252", stroke = "#000000", kinds = setOf("Fun")),
-    TextTemplate("hello", "Caveat Brush", "#80deea", shadow = true, kinds = setOf("Script")),
+    TextTemplate("GAME OVER", "Pixelify Sans", "#ff5252", stroke = "#000000", kinds = setOf("趣味")),
+    TextTemplate("hello", "Caveat Brush", "#80deea", shadow = true, kinds = setOf("手写")),
     TextTemplate("Episode 2", "DM Serif Display", "#ffffff", italic = true, plate = "#1a237e", kinds = setOf("Classic", "Labels")),
-    TextTemplate("FOLLOW", "Archivo Black", "#ffffff", plate = "#ff1744", kinds = setOf("Labels", "Bold")),
-    TextTemplate("BREAKING", "Black Ops One", "#ffffff", plate = "#d50000", kinds = setOf("Labels", "Bold")),
+    TextTemplate("FOLLOW", "Archivo Black", "#ffffff", plate = "#ff1744", kinds = setOf("Labels", "粗体")),
+    TextTemplate("BREAKING", "Black Ops One", "#ffffff", plate = "#d50000", kinds = setOf("Labels", "粗体")),
     TextTemplate("Pro tip", "Hanken Grotesk", "#111111", weight = 700, plate = "#b2ff59", kinds = setOf("Labels")),
-    TextTemplate("Fun fact", "Kosugi Maru", "#ffffff", plate = "#2979ff", kinds = setOf("Labels", "Fun")),
-    TextTemplate("STEP 1", "Secular One", "#ffffff", stroke = "#000000", kinds = setOf("Bold")),
-    TextTemplate("Mission", "Hammersmith One", "#ffab00", shadow = true, kinds = setOf("Bold")),
-    TextTemplate("Spooky", "Frijole", "#ff9100", stroke = "#000000", kinds = setOf("Fun")),
-    TextTemplate("Sweet", "Emilys Candy", "#ff80ab", stroke = "#ffffff", kinds = setOf("Fun", "Script")),
-    TextTemplate("Plot twist", "Mystery Quest", "#ffffff", shadow = true, kinds = setOf("Fun")),
-    TextTemplate("NIGHT OUT", "Bungee Hairline", "#ffffff", shadow = true, kinds = setOf("Fun", "Classic")),
-    TextTemplate("Kawaii", "Zen Tokyo Zoo", "#ffffff", plate = "#ff4081", kinds = setOf("Fun")),
-    TextTemplate("Travel diary", "Shadows Into Light Two", "#ffffff", shadow = true, kinds = setOf("Script")),
+    TextTemplate("Fun fact", "Kosugi Maru", "#ffffff", plate = "#2979ff", kinds = setOf("Labels", "趣味")),
+    TextTemplate("STEP 1", "Secular One", "#ffffff", stroke = "#000000", kinds = setOf("粗体")),
+    TextTemplate("Mission", "Hammersmith One", "#ffab00", shadow = true, kinds = setOf("粗体")),
+    TextTemplate("Spooky", "Frijole", "#ff9100", stroke = "#000000", kinds = setOf("趣味")),
+    TextTemplate("Sweet", "Emilys Candy", "#ff80ab", stroke = "#ffffff", kinds = setOf("趣味", "手写")),
+    TextTemplate("Plot twist", "Mystery Quest", "#ffffff", shadow = true, kinds = setOf("趣味")),
+    TextTemplate("NIGHT OUT", "Bungee Hairline", "#ffffff", shadow = true, kinds = setOf("趣味", "Classic")),
+    TextTemplate("Kawaii", "Zen Tokyo Zoo", "#ffffff", plate = "#ff4081", kinds = setOf("趣味")),
+    TextTemplate("Travel diary", "Shadows Into Light Two", "#ffffff", shadow = true, kinds = setOf("手写")),
     TextTemplate("RETRO", "Atomic Age", "#ffd740", stroke = "#d84315", kinds = setOf("Classic")),
-    TextTemplate("WORKOUT", "Germania One", "#ffffff", plate = "#212121", kinds = setOf("Bold", "Labels")),
-    TextTemplate("Happy birthday", "Lobster", "#ffeb3b", stroke = "#e91e63", kinds = setOf("Script", "Fun")),
+    TextTemplate("WORKOUT", "Germania One", "#ffffff", plate = "#212121", kinds = setOf("粗体", "Labels")),
+    TextTemplate("Happy birthday", "Lobster", "#ffeb3b", stroke = "#e91e63", kinds = setOf("手写", "趣味")),
     TextTemplate("Before", "Montserrat", "#ffffff", weight = 900, plate = "#424242", kinds = setOf("Labels")),
     TextTemplate("After", "Montserrat", "#111111", weight = 900, plate = "#ffffff", kinds = setOf("Labels")),
-    TextTemplate("OMG", "Bangers", "#ffffff", stroke = "#d500f9", kinds = setOf("Fun", "Bold")),
-    TextTemplate("Highlights", "Bebas Neue", "#00e676", shadow = true, kinds = setOf("Bold")),
+    TextTemplate("OMG", "Bangers", "#ffffff", stroke = "#d500f9", kinds = setOf("趣味", "粗体")),
+    TextTemplate("Highlights", "Bebas Neue", "#00e676", shadow = true, kinds = setOf("粗体")),
     TextTemplate("Subscribe", "Archivo Black", "#ffffff", plate = "#e53935", kinds = setOf("Labels")),
     TextTemplate("Recipe", "DM Serif Display", "#ffe0b2", italic = true, shadow = true, kinds = setOf("Classic")),
-    TextTemplate("Unboxing", "Space Grotesk", "#ffffff", weight = 700, stroke = "#304ffe", kinds = setOf("Bold")),
-    TextTemplate("today", "Permanent Marker", "#ffee58", shadow = true, kinds = setOf("Script", "Fun")),
+    TextTemplate("Unboxing", "Space Grotesk", "#ffffff", weight = 700, stroke = "#304ffe", kinds = setOf("粗体")),
+    TextTemplate("today", "Permanent Marker", "#ffee58", shadow = true, kinds = setOf("手写", "趣味")),
     TextTemplate("Q&A", "Abril Fatface", "#ffffff", plate = "#6200ea", kinds = setOf("Classic", "Labels")),
 )
 
@@ -1263,7 +1263,7 @@ private val CASES = listOf<(String) -> String>(
 )
 
 /** The style tab's parts, in the reference's order. */
-private val STYLE_PARTS = listOf("Text", "Stroke", "Glow", "Background", "Shadow", "Curve", "Spacing", "Bold italic", "Case")
+private val STYLE_PARTS = listOf("Text", "Stroke", "发光", "Background", "Shadow", "Curve", "Spacing", "Bold italic", "Case")
 
 /**
  * The text panel's Styles tab: ready-made looks, then one part of the look at a time. Glow,
