@@ -719,15 +719,15 @@ private fun EditTab(
                 Row(Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Spacer(Modifier.weight(1f))
                     Box(Modifier.size(44.dp).clip(RoundedCornerShape(22.dp)).clickable(onClick = onSearch), contentAlignment = Alignment.Center) {
-                        Glyph(LucideIcons.Search, Color.White, size = 24.dp, description = "Search projects")
+                        Glyph(LucideIcons.Search, Color.White, size = 24.dp, description = "搜索项目")
                     }
                 }
                 Spacer(Modifier.height(176.dp))
                 Column(Modifier.padding(horizontal = 16.dp).clickable(onClick = onNewVideo)) {
-                    Text("Ready when you are", style = ink(14f, color = Color.White.copy(alpha = 0.92f)))
+                    Text("准备好后即可开始", style = ink(14f, color = Color.White.copy(alpha = 0.92f)))
                     Spacer(Modifier.height(2.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Make your next video", style = ink(21f, FontWeight.Bold, Color.White))
+                        Text("制作你的下一个视频", style = ink(21f, FontWeight.Bold, Color.White))
                         Spacer(Modifier.width(6.dp))
                         Box(Modifier.size(18.dp).clip(RoundedCornerShape(4.dp)).background(Color.White.copy(alpha = 0.3f)), contentAlignment = Alignment.Center) {
                             Glyph(LucideIcons.ChevronRight, Color.White, size = 14.dp)
@@ -760,7 +760,7 @@ private fun EditTab(
                     Modifier.align(Alignment.CenterEnd).padding(end = 16.dp).size(46.dp, 70.dp)
                         .clip(RoundedCornerShape(6.dp)).background(Home.More).clickable(onClick = onAllProjects),
                     contentAlignment = Alignment.Center,
-                ) { Glyph(LucideIcons.ChevronRight, Color.White, size = 24.dp, description = "All projects") }
+                ) { Glyph(LucideIcons.ChevronRight, Color.White, size = 24.dp, description = "全部项目") }
             }
             Spacer(Modifier.height(12.dp))
         }
@@ -974,7 +974,7 @@ private fun ProjectsTab(
                         Glyph(LucideIcons.Search, Home.Muted, size = 18.dp)
                         Spacer(Modifier.width(8.dp))
                         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-                            if (query.isEmpty()) Text("Search projects", style = ink(15f, color = Home.Muted))
+                            if (query.isEmpty()) Text("搜索项目", style = ink(15f, color = Home.Muted))
                             BasicTextField(
                                 value = query,
                                 onValueChange = { query = it },
@@ -993,16 +993,16 @@ private fun ProjectsTab(
                 } else {
                     Text("项目", style = ink(22f, FontWeight.Bold), modifier = Modifier.weight(1f))
                     Box(Modifier.size(44.dp).clip(RoundedCornerShape(22.dp)).clickable(onClick = onImport), contentAlignment = Alignment.Center) {
-                        Glyph(LucideIcons.FolderOpen, Home.Ink, size = 22.dp, description = "Open a project file")
+                        Glyph(LucideIcons.FolderOpen, Home.Ink, size = 22.dp, description = "打开项目文件")
                     }
                     Box(Modifier.size(44.dp).clip(RoundedCornerShape(22.dp)).clickable { onSearching(true) }, contentAlignment = Alignment.Center) {
-                        Glyph(LucideIcons.Search, Home.Ink, size = 24.dp, description = "Search projects")
+                        Glyph(LucideIcons.Search, Home.Ink, size = 24.dp, description = "搜索项目")
                     }
                 }
             }
             // the shelves along the top, as the reference has its Local and Trash
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
-                listOf("Local" to false, "回收站" to true).forEach { (label, isTrash) ->
+                listOf("本地" to false, "回收站" to true).forEach { (label, isTrash) ->
                     val on = showingTrash == isTrash
                     Column(
                         Modifier.clickable { onShowTrash(isTrash) }.padding(horizontal = 10.dp, vertical = 8.dp),
@@ -1017,7 +1017,7 @@ private fun ProjectsTab(
             Box(Modifier.fillMaxWidth().height(1.dp).background(Home.Hairline))
             if (showingTrash) {
                 Text(
-                    "Projects here are deleted for good after 30 days.",
+                    "项目移入回收站 30 天后将被永久删除。",
                     style = ink(13f, color = Home.Muted),
                     modifier = Modifier.padding(start = 16.dp, top = 10.dp, bottom = 4.dp),
                 )
@@ -1025,7 +1025,7 @@ private fun ProjectsTab(
                 when {
                     bin == null -> Unit
                     bin.isEmpty() -> Box(Modifier.fillMaxWidth().padding(top = 96.dp), contentAlignment = Alignment.Center) {
-                        Text("The Trash is empty", style = ink(14f, color = Home.Muted))
+                        Text("回收站为空", style = ink(14f, color = Home.Muted))
                     }
                     else -> LazyColumn(Modifier.fillMaxSize()) {
                         items(bin, key = { it.path }) { p -> ProjectRow(p, ticked = null, onOpen = { onTrashMenu(p) }, onMenu = { onTrashMenu(p) }) }
@@ -1059,7 +1059,7 @@ private fun ProjectsTab(
                     CircularProgressIndicator(color = Palette.Accent, modifier = Modifier.size(28.dp), strokeWidth = 2.dp)
                 }
                 shown.isEmpty() -> Box(Modifier.fillMaxWidth().padding(top = 96.dp), contentAlignment = Alignment.Center) {
-                    Text(if (searching && query.isNotBlank()) "No projects found" else "还没有项目", style = ink(14f, color = Home.Muted))
+                    Text(if (searching && query.isNotBlank()) "没有找到项目" else "还没有项目", style = ink(14f, color = Home.Muted))
                 }
                 else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 88.dp)) {
                     items(shown, key = { it.path }) { p ->
@@ -1172,7 +1172,7 @@ private fun SelectBar(all: Boolean, count: Int, onAll: () -> Unit, onDelete: () 
             Text(if (all) "取消全选" else "全选", style = ink(15f), modifier = Modifier.clickable(onClick = onAll).padding(8.dp))
             Spacer(Modifier.weight(1f))
             Text(
-                "Delete ($count)",
+                "删除（$count）",
                 style = ink(15f, FontWeight.SemiBold, if (count == 0) Home.Muted else Palette.Danger),
                 modifier = Modifier.clickable(enabled = count > 0, onClick = onDelete).padding(8.dp),
             )
@@ -1312,7 +1312,7 @@ private fun AboutScreen(onBack: () -> Unit) {
             Spacer(Modifier.height(24.dp))
             Text("CapCraft Forge", style = ink(26f, FontWeight.Bold))
             Spacer(Modifier.height(6.dp))
-            Text("Version $version", style = ink(13f, color = Home.Muted))
+            Text("版本 $version", style = ink(13f, color = Home.Muted))
             Spacer(Modifier.height(28.dp))
             Text(
                 "A free video editor that keeps your work on your phone. Built on Concat's engine; free " +
@@ -1321,7 +1321,7 @@ private fun AboutScreen(onBack: () -> Unit) {
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                "This is an unofficial, modified build of CapCraft for Android. The original authors do not maintain or endorse it.",
+                "这是 CapCraft for Android 的非官方修改版本，原作者不负责维护，也不代表原作者认可本项目。",
                 style = ink(13f, color = Home.Muted).copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center),
             )
             Spacer(Modifier.height(16.dp))
