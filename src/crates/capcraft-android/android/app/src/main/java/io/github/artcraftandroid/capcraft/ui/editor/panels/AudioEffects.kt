@@ -59,7 +59,7 @@ fun AudioEffectsPanel(vm: EditorViewModel) {
     val ids = remember(all) { all.map { it.id }.toSet() }
     val shown = all.filter { p ->
         if (query.isNotBlank()) p.name.contains(query.trim(), ignoreCase = true)
-        else if (tab == 0) p.category != "Voice" else p.category == "Voice"
+        else if (tab == 0) p.category != "人声" else p.category == "人声"
     }
     val chain = remember(clip.json) { vm.clipJson(clip.id)?.optJSONArray("filters") ?: JSONArray() }
     val current = (0 until chain.length()).map { chain.getJSONObject(it).optString("id") }.firstOrNull { it in ids }
@@ -75,9 +75,9 @@ fun AudioEffectsPanel(vm: EditorViewModel) {
         vm.patch(clip.id, JSONObject().put("filters", next))
     }
 
-    PanelFrame("Audio effects", vm, tall = true, titleOnTop = true, header = {
+    PanelFrame("音频特效", vm, tall = true, titleOnTop = true, header = {
         Row(Modifier.padding(start = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            listOf("Voice filters", "Voice characters").forEachIndexed { i, name ->
+            listOf("人声滤镜", "声音角色").forEachIndexed { i, name ->
                 val on = i == tab && query.isBlank()
                 androidx.compose.foundation.layout.Column(
                     Modifier.clickable {
@@ -103,18 +103,18 @@ fun AudioEffectsPanel(vm: EditorViewModel) {
     }) {
         Row(Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             if (searching) {
-                Box(Modifier.weight(1f)) { SearchField(query, { query = it }, "Search audio effects", autoFocus = true) }
+                Box(Modifier.weight(1f)) { SearchField(query, { query = it }, "搜索音频特效", autoFocus = true) }
                 Text(
-                    "Cancel",
+                    "取消",
                     style = Type.Body.copy(color = Palette.DockText),
                     modifier = Modifier.clickable { query = ""; searching = false }.padding(horizontal = 10.dp, vertical = 8.dp),
                 )
             } else {
                 Box(Modifier.size(32.dp).clickable { searching = true }, contentAlignment = Alignment.Center) {
-                    Glyph(LucideIcons.Search, Palette.DockText, size = 18.dp, description = "Search audio effects")
+                    Glyph(LucideIcons.Search, Palette.DockText, size = 18.dp, description = "搜索音频特效")
                 }
                 Box(Modifier.padding(horizontal = 10.dp).size(1.dp, 18.dp).background(Color(0xFF444444)))
-                Text("All", style = Type.BodyStrong.copy(color = Palette.Text, fontSize = 15.sp))
+                Text("全部", style = Type.BodyStrong.copy(color = Palette.Text, fontSize = 15.sp))
             }
         }
         LazyVerticalGrid(
@@ -125,7 +125,7 @@ fun AudioEffectsPanel(vm: EditorViewModel) {
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             if (query.isBlank()) {
-                item { SoundTile("Original", current == null, bold = true) { apply(null) } }
+                item { SoundTile("原声", current == null, bold = true) { apply(null) } }
             }
             items(shown.size) { i ->
                 val p = shown[i]
