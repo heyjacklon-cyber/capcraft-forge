@@ -1,0 +1,94 @@
+name: Simplified Chinese APK
+
+on:
+  push:
+    branches:
+      - feature/zh-CN
+    paths:
+      - 'src/**'
+      - '.github/workflows/zh-cn-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zh-cn-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  GGML_NATIVE: "OFF"
+  NDK_VERSION: 29.0.14206865
+
+jobs:
+  apk:
+    name: Build ARM64 APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: System libraries
+        run: sudo apt-get update && sudo apt-get install -y cmake libclang-dev
+
+      - name: Install Rust
+        working-directory: src
+        run: |
+          rustup toolchain install
+          rustup target add aarch64-linux-android
+
+      - name: Install cargo-ndk and Android NDK
+        run: |
+          cargo install cargo-ndk --version 4.1.2 --locked
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION" >/dev/null
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+
+      - name: FFmpeg for Android (cached)
+        id: ffmpeg
+        uses: actions/cache@v4
+        with:
+          path: src/vendor/ffmpeg/aarch64-linux-android
+          key: ffmpeg-aarch64-linux-android-${{ env.NDK_VERSION }}-${{ hashFiles('src/scripts/ffmpeg-mobile.sh', 'src/scripts/ffmpeg-patches/**') }}
+
+      - name: Build FFmpeg
+        if: steps.ffmpeg.outputs.cache-hit != 'true'
+        run: src/scripts/ffmpeg-mobile.sh aarch64-linux-android
+
+      - name: Build sherpa-onnx
+        run: src/scripts/sherpa-mobile.sh aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src
+          key: zh-cn-android
+
+      - name: Build APK
+        run: |
+          cd src
+          eval "$(scripts/mobile-env.sh aarch64-linux-android)"
+          cd crates/capcraft-android/android
+          ./gradlew assembleRelease "-Pcapcraft.abis=arm64-v8a" --no-daemon
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/dist/capcraft-forge-zh-CN-arm64.apk"
+
+      - name: Verify APK
+        run: |
+          apk="dist/capcraft-forge-zh-CN-arm64.apk"
+          test -s "$apk"
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner"
+          "$apksigner" verify --print-certs "$apk"
+          echo "APK built successfully: $apk" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: capcraft-forge-zh-CN-arm64
+          path: dist/capcraft-forge-zh-CN-arm64.apk
+          if-no-files-found: error
+          retention-days: 14
