@@ -52,11 +52,11 @@ internal fun SheetHead(title: String, onReset: () -> Unit, onClose: () -> Unit) 
         Row(Modifier.align(Alignment.CenterStart).clickable(onClick = onReset).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Glyph(LucideIcons.RotateCcw, Palette.TextSecondary, size = 16.dp)
             Spacer(Modifier.width(6.dp))
-            Text("Reset", style = Type.Small.copy(color = Palette.TextSecondary))
+            Text("重置", style = Type.Small.copy(color = Palette.TextSecondary))
         }
         Text(title, style = Type.Body.copy(color = Palette.Text), modifier = Modifier.align(Alignment.Center))
         Box(Modifier.align(Alignment.CenterEnd).size(40.dp).clickable(onClick = onClose), contentAlignment = Alignment.Center) {
-            Glyph(LucideIcons.CircleChevronDown, Palette.DockText, size = 20.dp, description = "Close")
+            Glyph(LucideIcons.CircleChevronDown, Palette.DockText, size = 20.dp, description = "关闭")
         }
     }
 }
@@ -79,7 +79,7 @@ val HSL_KEYS = HSL_BANDS.flatMap { (band, _) -> listOf("${band}_hue", "${band}_s
 fun ColumnScope.HslSheet(params: JSONObject, set: (Map<String, Double?>, String?) -> Unit, done: () -> Unit, close: () -> Unit) {
     var band by remember { mutableIntStateOf(0) }
     val (key, hue) = HSL_BANDS[band]
-    SheetHead("HSL", onReset = { set(HSL_KEYS.associateWith { null }, null) }, onClose = close)
+    SheetHead("HSL 调色", onReset = { set(HSL_KEYS.associateWith { null }, null) }, onClose = close)
     // the bands and their sliders scroll on a phone too short for them all
     Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -98,7 +98,7 @@ fun ColumnScope.HslSheet(params: JSONObject, set: (Map<String, Double?>, String?
             Brush.horizontalGradient(listOf(Color(0xFF9A9A9A), Color.hsv(hue, 1f, 0.95f))),
             Brush.horizontalGradient(listOf(Color.hsv(hue, 0.8f, 0.25f), Color.hsv(hue, 0.25f, 1f))),
         )
-        listOf("hue" to "Hue", "sat" to "Saturation", "light" to "Lightness").forEachIndexed { i, (part, label) ->
+        listOf("hue" to "色相", "sat" to "饱和度", "light" to "明度").forEachIndexed { i, (part, label) ->
             androidx.compose.runtime.key(key, part) {
                 var held by remember { mutableStateOf<Float?>(null) }
                 ValueSlider(
@@ -122,7 +122,7 @@ fun ColumnScope.HslSheet(params: JSONObject, set: (Map<String, Double?>, String?
 }
 
 /** The engine's three wheels, by the key it keeps each under, and what the sheet calls them. */
-private val WHEELS = listOf("lift" to "Shadows", "gamma" to "Midtones", "gain" to "Highlights")
+private val WHEELS = listOf("lift" to "阴影", "gamma" to "中间调", "gain" to "高光")
 
 /** Every key the Color wheel sheet sets. */
 val WHEEL_KEYS = WHEELS.flatMap { (wheel, _) -> listOf("$wheel.x", "$wheel.y", "$wheel.m") }
@@ -139,7 +139,7 @@ private val DISC = (0..12).map { i -> Color.hsv(((i * 30f) + 90f) % 360f, 0.85f,
 fun ColumnScope.WheelsSheet(params: JSONObject, set: (Map<String, Double?>, String?) -> Unit, done: () -> Unit, close: () -> Unit) {
     val setNow by rememberUpdatedState(set)
     val doneNow by rememberUpdatedState(done)
-    SheetHead("Color wheel", onReset = { set(WHEEL_KEYS.associateWith { null }, null) }, onClose = close)
+    SheetHead("色轮", onReset = { set(WHEEL_KEYS.associateWith { null }, null) }, onClose = close)
     Row(Modifier.fillMaxWidth().weight(1f).padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
         WHEELS.forEach { (wheel, label) ->
             // the dot while the finger moves it, before the engine has it
@@ -288,7 +288,7 @@ fun ColumnScope.GraphsSheet(params: JSONObject, set: (Map<String, Double?>, Stri
         }
         setNow(values, gesture)
     }
-    SheetHead("Graphs", onReset = { set(CURVE_KEYS.associateWith { null }, null) }, onClose = close)
+    SheetHead("曲线图", onReset = { set(CURVE_KEYS.associateWith { null }, null) }, onClose = close)
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.Center) {
         CURVES.forEachIndexed { i, (_, colour) ->
             Box(
