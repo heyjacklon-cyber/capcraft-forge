@@ -255,7 +255,7 @@ fun HomeScreen(
                             val tenth = (f * 10).toInt()
                             if (tenth != said) {
                                 said = tenth
-                                scope.launch { message = "Exporting project ${tenth * 10}%" }
+                                scope.launch { message = "正在导出项目 ${tenth * 10}%" }
                             }
                         }
                     }
@@ -634,7 +634,7 @@ fun HomeScreen(
                 onExport = {
                     menuFor = null
                     exporting = p
-                    saveZip.launch(io.github.artcraftandroid.capcraft.engine.Media.safeName(p.name.ifBlank { "Project" }) + ".zip")
+                    saveZip.launch(io.github.artcraftandroid.capcraft.engine.Media.safeName(p.name.ifBlank { "项目" }) + ".zip")
                 },
                 onDelete = { menuFor = null; deleting = p },
             )
@@ -736,10 +736,10 @@ private fun EditTab(
                 }
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.fillMaxWidth().height(112.dp).padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CreateCard("New video", Modifier.weight(1.7f), onNewVideo) {
+                    CreateCard("新建视频", Modifier.weight(1.7f), onNewVideo) {
                         Glyph(LucideIcons.Plus, Home.OnInk, size = 18.dp)
                     }
-                    CreateCard("Edit photo", Modifier.weight(1f), onCaptions) {
+                    CreateCard("编辑照片", Modifier.weight(1f), onCaptions) {
                         Glyph(LucideIcons.Image, Home.OnInk, size = 16.dp)
                     }
                 }
@@ -991,7 +991,7 @@ private fun ProjectsTab(
                         modifier = Modifier.clickable { query = ""; onSearching(false) }.padding(horizontal = 10.dp, vertical = 8.dp),
                     )
                 } else {
-                    Text("Projects", style = ink(22f, FontWeight.Bold), modifier = Modifier.weight(1f))
+                    Text("项目", style = ink(22f, FontWeight.Bold), modifier = Modifier.weight(1f))
                     Box(Modifier.size(44.dp).clip(RoundedCornerShape(22.dp)).clickable(onClick = onImport), contentAlignment = Alignment.Center) {
                         Glyph(LucideIcons.FolderOpen, Home.Ink, size = 22.dp, description = "Open a project file")
                     }
@@ -1002,7 +1002,7 @@ private fun ProjectsTab(
             }
             // the shelves along the top, as the reference has its Local and Trash
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
-                listOf("Local" to false, "Trash" to true).forEach { (label, isTrash) ->
+                listOf("Local" to false, "回收站" to true).forEach { (label, isTrash) ->
                     val on = showingTrash == isTrash
                     Column(
                         Modifier.clickable { onShowTrash(isTrash) }.padding(horizontal = 10.dp, vertical = 8.dp),
@@ -1035,7 +1035,7 @@ private fun ProjectsTab(
             }
             if (!projects.isNullOrEmpty()) {
                 Row(Modifier.fillMaxWidth().padding(start = 16.dp, top = 12.dp, bottom = 2.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("All", "Video", "Photo").forEachIndexed { i, name ->
+                    listOf("全选", "视频", "照片").forEachIndexed { i, name ->
                         Box(
                             Modifier.height(34.dp).clip(RoundedCornerShape(8.dp))
                                 .border(if (i == kind) 1.5.dp else 1.dp, if (i == kind) Home.Ink else Home.Hairline, RoundedCornerShape(8.dp))
@@ -1048,7 +1048,7 @@ private fun ProjectsTab(
                 Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("$count project${if (count == 1) "" else "s"}", style = ink(16f, FontWeight.Medium), modifier = Modifier.weight(1f))
                     Text(
-                        if (managing == null) "Select" else "Done",
+                        if (managing == null) "选择" else "完成",
                         style = ink(15f, color = Home.Muted),
                         modifier = Modifier.clickable { onManaging(if (managing == null) emptySet() else null) }.padding(8.dp),
                     )
@@ -1059,7 +1059,7 @@ private fun ProjectsTab(
                     CircularProgressIndicator(color = Palette.Accent, modifier = Modifier.size(28.dp), strokeWidth = 2.dp)
                 }
                 shown.isEmpty() -> Box(Modifier.fillMaxWidth().padding(top = 96.dp), contentAlignment = Alignment.Center) {
-                    Text(if (searching && query.isNotBlank()) "No projects found" else "No projects yet", style = ink(14f, color = Home.Muted))
+                    Text(if (searching && query.isNotBlank()) "No projects found" else "还没有项目", style = ink(14f, color = Home.Muted))
                 }
                 else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 88.dp)) {
                     items(shown, key = { it.path }) { p ->
@@ -1092,7 +1092,7 @@ private fun ProjectsTab(
                     Glyph(LucideIcons.Plus, Palette.Accent, size = 16.dp)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text("Create", style = ink(17f, FontWeight.Medium, Color.White))
+                Text("创建", style = ink(17f, FontWeight.Medium, Color.White))
             }
         }
     }
@@ -1135,7 +1135,7 @@ private fun ProjectRow(p: ProjectSummary, ticked: Boolean?, onOpen: () -> Unit, 
         }
         if (ticked == null) {
             Box(Modifier.size(40.dp).clip(RoundedCornerShape(20.dp)).clickable(onClick = onMenu), contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.Ellipsis, Home.Muted, size = 20.dp, description = "More")
+                Glyph(LucideIcons.Ellipsis, Home.Muted, size = 20.dp, description = "更多")
             }
         } else {
             Box(
@@ -1169,7 +1169,7 @@ private fun SelectBar(all: Boolean, count: Int, onAll: () -> Unit, onDelete: () 
     Column(Modifier.fillMaxWidth().background(Home.Background).navigationBarsPadding()) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(Home.Hairline))
         Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(if (all) "Deselect all" else "Select all", style = ink(15f), modifier = Modifier.clickable(onClick = onAll).padding(8.dp))
+            Text(if (all) "取消全选" else "全选", style = ink(15f), modifier = Modifier.clickable(onClick = onAll).padding(8.dp))
             Spacer(Modifier.weight(1f))
             Text(
                 "Delete ($count)",
@@ -1197,9 +1197,9 @@ private fun BottomBar(tab: Int, latest: ProjectSummary?, onTab: (Int) -> Unit) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(Home.Hairline))
         Row(Modifier.fillMaxWidth().height(58.dp)) {
             listOf(
-                Triple("Edit", LucideIcons.Scissors, 0),
-                Triple("Projects", LucideIcons.Folder, 1),
-                Triple("Me", LucideIcons.UserRound, 2),
+                Triple("编辑", LucideIcons.Scissors, 0),
+                Triple("项目", LucideIcons.Folder, 1),
+                Triple("我的", LucideIcons.UserRound, 2),
             ).forEach { (label, icon, i) ->
                 val on = tab == i
                 Column(
@@ -1239,10 +1239,10 @@ private fun MeTab(onLicences: () -> Unit, onAbout: () -> Unit, onCleared: (Strin
     LaunchedEffect(Unit) { cache = withContext(Threads.commands) { cacheSize(context) } }
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Settings", style = ink(22f, FontWeight.Bold))
+            Text("设置", style = ink(22f, FontWeight.Bold))
         }
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-            SettingRow("Clear cache", cache?.let(::size) ?: "") { clearing = true }
+            SettingRow("清理缓存", cache?.let(::size) ?: "") { clearing = true }
             SettingRow("开源许可", null, onLicences)
             SettingRow("关于 CapCraft Forge", null, onAbout)
             SettingRow("版本", version, null)
