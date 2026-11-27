@@ -50,7 +50,7 @@ fun EnhancePanel(vm: EditorViewModel) {
     val listener = remember {
         object : SpeechListener {
             override fun onProgress(fraction: Float, stage: String) {
-                scope.launch(Dispatchers.Main) { job = (if (stage == "download") "Downloading" else "Enhancing") to fraction }
+                scope.launch(Dispatchers.Main) { job = (if (stage == "download") "正在下载" else "正在增强") to fraction }
             }
 
             override fun onDone(result: TimelineView?) {
@@ -70,20 +70,20 @@ fun EnhancePanel(vm: EditorViewModel) {
     }
     fun set(want: Boolean) {
         val s = vm.session ?: return
-        if (want) job = "Starting" to 0f
+        if (want) job = "正在启动" to 0f
         scope.launch(Threads.commands) {
             runCatching { s.enhance(clip.id, want, listener) }
                 .onFailure { e -> launch(Dispatchers.Main) { job = null; vm.message = e.userMessage } }
         }
     }
-    PanelFrame("Super resolution", vm, height = 210.dp, titleOnTop = true) {
+    PanelFrame("超分辨率增强", vm, height = 210.dp, titleOnTop = true) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(
                 Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF2E2E2E))
                     .clickable(enabled = job == null) { set(!on) }.padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Super resolution", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text), modifier = Modifier.weight(1f))
+                Text("超分辨率增强", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text), modifier = Modifier.weight(1f))
                 Box(
                     Modifier.size(40.dp, 24.dp).clip(RoundedCornerShape(12.dp)).background(if (on) Palette.Accent else Color(0xFF555555)).padding(3.dp),
                     contentAlignment = if (on) Alignment.CenterEnd else Alignment.CenterStart,
@@ -99,7 +99,7 @@ fun EnhancePanel(vm: EditorViewModel) {
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Stop",
+                    "停止",
                     style = Type.BodyStrong.copy(color = Palette.DockText),
                     modifier = Modifier.clickable { runCatching { cancelEnhance() }; job = null }.padding(vertical = 4.dp),
                 )
