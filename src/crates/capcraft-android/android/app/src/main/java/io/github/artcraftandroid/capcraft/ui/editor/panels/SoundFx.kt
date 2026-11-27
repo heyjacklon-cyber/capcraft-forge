@@ -404,7 +404,7 @@ internal fun addSoundFx(vm: EditorViewModel, name: String, scope: kotlinx.corout
                 File(dir, "${fx.name}.wav").also { if (!it.exists()) writeWav(it, render(fx)) }
             }.getOrNull()
         }
-        if (file == null) vm.message = "Could not make that sound" else placeFx(vm, file, fx.name)
+        if (file == null) vm.message = "无法生成该音效" else placeFx(vm, file, fx.name)
     }
 }
 
@@ -456,7 +456,7 @@ fun SoundFxPanel(vm: EditorViewModel) {
     var playing by remember { mutableStateOf<String?>(null) }
     val track = remember { arrayOfNulls<AudioTrack>(1) }
     DisposableEffect(Unit) { onDispose { track[0]?.release(); track[0] = null } }
-    val categories = remember { listOf("All") + SOUNDS.map { it.category }.distinct() }
+    val categories = remember { listOf("全部") + SOUNDS.map { it.category }.distinct() }
     val shown = when {
         query.isNotBlank() -> SOUNDS.filter { it.name.contains(query.trim(), ignoreCase = true) }
         category == 0 -> SOUNDS
@@ -488,13 +488,13 @@ fun SoundFxPanel(vm: EditorViewModel) {
                     File(dir, "${fx.name}.wav").also { if (!it.exists()) writeWav(it, render(fx)) }
                 }.getOrNull()
             }
-            if (file == null) vm.message = "Could not make that sound" else placeFx(vm, file, fx.name)
+            if (file == null) vm.message = "无法生成该音效" else placeFx(vm, file, fx.name)
         }
     }
 
-    PanelFrame("Sound FX", vm, tall = true, titleOnTop = true, header = { SearchField(query, { query = it }, "Search sound effects") }) {
+    PanelFrame("音效", vm, tall = true, titleOnTop = true, header = { SearchField(query, { query = it }, "搜索音效") }) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 6.dp)) {
-            listOf("Built in", "My sounds").forEachIndexed { i, label ->
+            listOf("内置", "我的音效").forEachIndexed { i, label ->
                 val on = mine == (i == 1)
                 Box(
                     Modifier.padding(end = 8.dp).height(30.dp).clip(CircleShape).background(if (on) Color(0xFF4A4A4A) else Color.Transparent)
@@ -534,7 +534,7 @@ fun SoundFxPanel(vm: EditorViewModel) {
                     Box(
                         Modifier.size(34.dp).clip(CircleShape).background(Color(0xFF3A3A3A)).clickable { add(fx) },
                         contentAlignment = Alignment.Center,
-                    ) { Glyph(LucideIcons.Plus, Palette.Text, size = 18.dp, description = "Add ${fx.name}") }
+                    ) { Glyph(LucideIcons.Plus, Palette.Text, size = 18.dp, description = "添加 ${fx.name}") }
                 }
             }
         }
