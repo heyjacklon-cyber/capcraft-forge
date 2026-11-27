@@ -195,7 +195,7 @@ fun PanelFrame(
                 Box(Modifier.weight(1f)) { header() }
             } else {
                 Box(Modifier.weight(1f)) { left?.invoke() }
-                Text(title, style = Type.BodyStrong.copy(fontSize = 16.sp, color = Palette.DockText))
+                Text(zhLabel(title), style = Type.BodyStrong.copy(fontSize = 16.sp, color = Palette.DockText))
             }
             Box(Modifier.then(if (header != null) Modifier.padding(end = 12.dp) else Modifier.weight(1f)), contentAlignment = Alignment.CenterEnd) {
                 Box(Modifier.size(44.dp).clickable(onClick = onDone), contentAlignment = Alignment.Center) {
@@ -413,7 +413,7 @@ fun Tabs(labels: List<String>, selected: Int, onSelect: (Int) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    label,
+                    zhLabel(label),
                     style = Type.Body.copy(
                         color = if (i == selected) Palette.Text else Palette.TextSecondary,
                         fontWeight = if (i == selected) FontWeight.SemiBold else FontWeight.Normal,
@@ -1088,7 +1088,7 @@ private fun TransitionPanel(vm: EditorViewModel, clipId: String) {
     val kept = remember(Favorites.version.intValue) { Favorites.of(context, "transition") }
     val shown = remember(packages, query, tab, categories, keptTab, kept) {
         when {
-            query.isNotBlank() -> packages.filter { it.name.contains(query.trim(), ignoreCase = true) }
+            query.isNotBlank() -> packages.filter { (it.name.contains(query.trim(), ignoreCase = true) || zhPackage(it.id, it.name).contains(query.trim(), ignoreCase = true)) }
             keptTab -> packages.filter { it.id in kept }
             tab == 0 -> packages
             else -> packages.filter { it.category == categories.getOrNull(tab) }
@@ -1136,7 +1136,7 @@ private fun TransitionPanel(vm: EditorViewModel, clipId: String) {
                 } else {
                     val p = shown[i - none]
                     GridTile(
-                        p.name,
+                        zhPackage(p.id, p.name),
                         chosen == p.id,
                         onClick = {
                             chosen = p.id
@@ -1202,7 +1202,7 @@ internal fun SearchField(value: String, onChange: (String) -> Unit, hint: String
         Glyph(LucideIcons.Search, Palette.TextSecondary, size = 16.dp)
         Spacer(Modifier.width(8.dp))
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-            if (value.isEmpty()) Text(hint, style = Type.Body.copy(color = Palette.TextSecondary), maxLines = 1)
+            if (value.isEmpty()) Text(zhLabel(hint), style = Type.Body.copy(color = Palette.TextSecondary), maxLines = 1)
             androidx.compose.foundation.text.BasicTextField(
                 value = value,
                 onValueChange = onChange,
