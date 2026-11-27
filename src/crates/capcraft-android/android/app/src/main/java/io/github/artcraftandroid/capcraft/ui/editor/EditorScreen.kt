@@ -129,7 +129,7 @@ fun EditorScreen(path: String, incoming: List<Uri>, then: String? = null, close:
 
     fun export() {
         vm.stop()
-        if ((vm.timeline?.durationUs ?: 0L) <= 0L) vm.message = "Add media first" else exporting = true
+        if ((vm.timeline?.durationUs ?: 0L) <= 0L) vm.message = "请先添加素材" else exporting = true
     }
 
     BackHandler {
@@ -214,11 +214,11 @@ private fun TopBar(vm: EditorViewModel, onClose: () -> Unit, onExport: () -> Uni
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.padding(start = 6.dp).size(44.dp, 50.dp).clickable(onClick = onClose), contentAlignment = Alignment.Center) {
-            Glyph(LucideIcons.X, Palette.DockText, size = 26.dp, description = "Close")
+            Glyph(LucideIcons.X, Palette.DockText, size = 26.dp, description = "关闭")
         }
         // finding a tool by its name, beside the close button as the reference has it
         Box(Modifier.size(44.dp, 50.dp).clickable { vm.stop(); vm.toolSearch = true }, contentAlignment = Alignment.Center) {
-            Glyph(LucideIcons.Search, Palette.DockText, size = 24.dp, description = "Find a tool")
+            Glyph(LucideIcons.Search, Palette.DockText, size = 24.dp, description = "查找工具")
         }
         Spacer(Modifier.weight(1f))
         val t = vm.timeline
@@ -248,7 +248,7 @@ private fun TopBar(vm: EditorViewModel, onClose: () -> Unit, onExport: () -> Uni
                 .clickable(onClick = onExport),
             contentAlignment = Alignment.Center,
         ) {
-            Text("Export", style = Type.BodyStrong.copy(color = Palette.OnAccent, fontSize = 15.sp, fontWeight = FontWeight.Medium))
+            Text("导出", style = Type.BodyStrong.copy(color = Palette.OnAccent, fontSize = 15.sp, fontWeight = FontWeight.Medium))
         }
         Spacer(Modifier.width(16.dp))
     }
@@ -313,7 +313,7 @@ fun Preview(vm: EditorViewModel, modifier: Modifier) {
             }
         }
         if (t.rows.all { it.clips.isEmpty() }) {
-            Text("Add media to start editing", style = Type.Small)
+            Text("添加素材以开始编辑", style = Type.Small)
         }
         if (!vm.fullscreen) PreparingBadge(vm, Modifier.align(Alignment.TopStart))
     }
@@ -541,11 +541,11 @@ private fun PlayBar(vm: EditorViewModel) {
     ) {
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(40.dp).clickable { vm.fullscreen = true }, contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.Expand, Palette.DockText, size = 24.dp, description = "Full screen")
+                Glyph(LucideIcons.Expand, Palette.DockText, size = 24.dp, description = "全屏")
             }
         }
         Box(Modifier.size(44.dp).clickable { vm.togglePlay() }, contentAlignment = Alignment.Center) {
-            Glyph(if (vm.playing) LucideIcons.Pause else LucideIcons.Play, Palette.DockText, size = 28.dp, description = if (vm.playing) "Pause" else "Play")
+            Glyph(if (vm.playing) LucideIcons.Pause else LucideIcons.Play, Palette.DockText, size = 28.dp, description = if (vm.playing) "暂停" else "播放")
         }
         Row(Modifier.weight(1f), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
             val canUndo = t?.canUndo == true
@@ -568,15 +568,15 @@ private fun PlayBar(vm: EditorViewModel) {
                         if (onKey) LucideIcons.DiamondMinus else LucideIcons.DiamondPlus,
                         if (!inside) Palette.Disabled else if (onKey) Palette.Accent else Palette.DockText,
                         size = 24.dp,
-                        description = if (onKey) "Remove keyframe" else "Add keyframe",
+                        description = if (onKey) "删除关键帧" else "添加关键帧",
                     )
                 }
             }
             Box(Modifier.size(36.dp).clickable(enabled = canUndo) { vm.stop(); vm.step(back = true) }, contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.Undo2, if (canUndo) Palette.DockText else Palette.Disabled, size = 23.dp, description = "Undo")
+                Glyph(LucideIcons.Undo2, if (canUndo) Palette.DockText else Palette.Disabled, size = 23.dp, description = "撤销")
             }
             Box(Modifier.size(36.dp).clickable(enabled = canRedo) { vm.stop(); vm.step(back = false) }, contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.Redo2, if (canRedo) Palette.DockText else Palette.Disabled, size = 23.dp, description = "Redo")
+                Glyph(LucideIcons.Redo2, if (canRedo) Palette.DockText else Palette.Disabled, size = 23.dp, description = "重做")
             }
         }
     }
@@ -627,7 +627,7 @@ private fun FullscreenPreview(vm: EditorViewModel) {
             Box(Modifier.weight(1f).padding(horizontal = 12.dp)) { Scrubber(vm) }
             Text(clock(vm.timeline?.durationUs ?: 0), style = Type.Small)
             Box(Modifier.size(40.dp).clickable { vm.fullscreen = false }, contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.Minimize, Palette.Text, size = 20.dp, description = "Exit full screen")
+                Glyph(LucideIcons.Minimize, Palette.Text, size = 20.dp, description = "退出全屏")
             }
         }
     }
