@@ -176,7 +176,7 @@ private fun MoreFonts(vm: EditorViewModel) {
         }
     }
     val p = job
-    WideButton(if (p != null) "Downloading ${(p * 100).toInt()}%" else "More fonts (%.0f MB)".format(left / 1_048_576.0), p == null) {
+    WideButton(if (p != null) "正在下载 ${(p * 100).toInt()}%" else "更多字体（%.0f MB）".format(left / 1_048_576.0), p == null) {
         job = 0f
         runCatching { io.github.artcraftandroid.capcraft.core.downloadMoreFonts(listener) }.onFailure { job = null; vm.message = it.message ?: "字体下载失败" }
     }
@@ -803,7 +803,7 @@ private fun wornSignature(vm: EditorViewModel, clipId: String, style: JSONObject
 @Composable
 private fun WordArtTab(vm: EditorViewModel, clipId: String?, style: JSONObject, change: (String?, JSONObject.() -> Unit) -> Unit) {
     val made = clipId ?: run {
-        Text("Type the words first, then give them an effect.", style = Type.Small, modifier = Modifier.padding(16.dp))
+        Text("请先输入文字，再添加特效。", style = Type.Small, modifier = Modifier.padding(16.dp))
         return
     }
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -847,9 +847,9 @@ private fun WordArtTab(vm: EditorViewModel, clipId: String?, style: JSONObject, 
         vm.endGesture()
     }
 
-    KindsRow(WORD_ART_KINDS, kind, query, { kind = it; keptTab = false }, { query = it }, "Search effects", keptTab) { keptTab = true }
+    KindsRow(WORD_ART_KINDS, kind, query, { kind = it; keptTab = false }, { query = it }, "搜索特效", keptTab) { keptTab = true }
     if (keptTab && shown.isEmpty()) {
-        Text("Press and hold one to keep it here", style = Type.Small, modifier = Modifier.padding(vertical = 24.dp))
+        Text("长按即可收藏", style = Type.Small, modifier = Modifier.padding(vertical = 24.dp))
     }
     val none = if (words.isEmpty() && !keptTab) 1 else 0
     Column(Modifier.padding(vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1025,9 +1025,9 @@ private fun TemplatesTab(style: JSONObject, onKept: (Boolean) -> Unit, onPick: (
     } else {
         TEMPLATES.filter { it === DEFAULT_TEMPLATE || kind == 0 || TEMPLATE_KINDS[kind] in it.kinds }
     }
-    KindsRow(TEMPLATE_KINDS, kind, query, { kind = it; keptTab = false }, { query = it }, "Search templates", keptTab) { keptTab = true }
+    KindsRow(TEMPLATE_KINDS, kind, query, { kind = it; keptTab = false }, { query = it }, "搜索模板", keptTab) { keptTab = true }
     if (keptTab && shown.isEmpty()) {
-        Text("Press and hold one to keep it here", style = Type.Small, modifier = Modifier.padding(vertical = 24.dp))
+        Text("长按即可收藏", style = Type.Small, modifier = Modifier.padding(vertical = 24.dp))
     }
     Column(Modifier.padding(vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         shown.chunked(4).forEach { row ->
@@ -1050,7 +1050,7 @@ private fun TemplatesTab(style: JSONObject, onKept: (Boolean) -> Unit, onPick: (
                         contentAlignment = Alignment.Center,
                     ) {
                         if (t === DEFAULT_TEMPLATE) {
-                            Text("Default", style = Type.Body.copy(color = Palette.Text, fontSize = 15.sp))
+                            Text("默认", style = Type.Body.copy(color = Palette.Text, fontSize = 15.sp))
                             return@Box
                         }
                         if (t.key in kept) {
@@ -1317,7 +1317,7 @@ private fun StylesTab(
     }
     Spacer(Modifier.height(4.dp))
     if (part in setOf(2, 4, 5) && clipId == null) {
-        Text("Type the words first, then give them this.", style = Type.Small, modifier = Modifier.padding(top = 12.dp))
+        Text("请先输入文字，再应用此样式。", style = Type.Small, modifier = Modifier.padding(top = 12.dp))
         return
     }
     when (part) {
@@ -1329,7 +1329,7 @@ private fun StylesTab(
                 label = { "${it.toInt()}" },
                 onChange = { v -> change("text-size") { put("fontSize", v / 1000.0) } },
                 onDone = { vm.endGesture() },
-                title = "Size",
+                title = "大小",
             )
             ValueSlider(
                 value = (style.optDouble("opacity", 1.0) * 100).toFloat(),
@@ -1337,7 +1337,7 @@ private fun StylesTab(
                 label = { "${it.toInt()}" },
                 onChange = { v -> change("text-opacity") { put("opacity", v / 100.0) } },
                 onDone = { vm.endGesture() },
-                title = "Opacity",
+                title = "不透明度",
             )
         }
         1 -> {
@@ -1358,7 +1358,7 @@ private fun StylesTab(
                 label = { "${it.toInt()}" },
                 onChange = { v -> change("text-stroke") { put("strokeWidth", v / 100.0 * MAX_STROKE) } },
                 onDone = { vm.endGesture() },
-                title = "Thickness",
+                title = "粗细",
             )
         }
         2 -> GlowPart(vm, clipId ?: return)
@@ -1378,7 +1378,7 @@ private fun StylesTab(
                         change("text-plate-opacity") { put("background", hex + "%02x".format((v / 100f * 255).toInt().coerceIn(0, 255))) }
                     },
                     onDone = { vm.endGesture() },
-                    title = "Opacity",
+                    title = "不透明度",
                 )
                 ValueSlider(
                     value = (style.optDouble("backgroundRadius", 0.0135) / MAX_RADIUS * 100).toFloat().coerceIn(0f, 100f),
@@ -1386,7 +1386,7 @@ private fun StylesTab(
                     label = { "${it.toInt()}" },
                     onChange = { v -> change("text-plate-radius") { put("backgroundRadius", v / 100.0 * MAX_RADIUS) } },
                     onDone = { vm.endGesture() },
-                    title = "Round",
+                    title = "圆角",
                 )
                 // the air between the words and the plate's sides, and above and below them
                 ValueSlider(
@@ -1395,7 +1395,7 @@ private fun StylesTab(
                     label = { "${it.toInt()}" },
                     onChange = { v -> change("text-plate-width") { put("backgroundPaddingX", v / 100.0 * MAX_PAD_X) } },
                     onDone = { vm.endGesture() },
-                    title = "Width",
+                    title = "宽度",
                 )
                 ValueSlider(
                     value = (style.optDouble("backgroundPaddingY", 0.018) / MAX_PAD_Y * 100).toFloat().coerceIn(0f, 100f),
@@ -1403,7 +1403,7 @@ private fun StylesTab(
                     label = { "${it.toInt()}" },
                     onChange = { v -> change("text-plate-height") { put("backgroundPaddingY", v / 100.0 * MAX_PAD_Y) } },
                     onDone = { vm.endGesture() },
-                    title = "Height",
+                    title = "高度",
                 )
             }
         }
@@ -1433,7 +1433,7 @@ private fun StylesTab(
                 label = { "${it.toInt()}" },
                 onChange = { v -> change("text-tracking") { put("tracking", v / 1000.0) } },
                 onDone = { vm.endGesture() },
-                title = "Character",
+                title = "字间距",
             )
             ValueSlider(
                 value = (style.optDouble("lineHeight", 1.2) * 10).toFloat().coerceIn(6f, 30f),
@@ -1441,7 +1441,7 @@ private fun StylesTab(
                 label = { "%.1f".format(it / 10f) },
                 onChange = { v -> change("text-leading") { put("lineHeight", v / 10.0) } },
                 onDone = { vm.endGesture() },
-                title = "Line",
+                title = "行间距",
             )
         }
         7 -> Row(Modifier.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1507,7 +1507,7 @@ private fun GlowPart(vm: EditorViewModel, clipId: String) {
         label = { "${it.toInt()}" },
         onChange = { v -> glowWith("text-glow-strength") { put("strength", v.toInt()) } },
         onDone = { vm.endGesture() },
-        title = "Intensity",
+        title = "强度",
     )
     ValueSlider(
         value = glow.optDouble("range", 50.0).toFloat(),
@@ -1515,7 +1515,7 @@ private fun GlowPart(vm: EditorViewModel, clipId: String) {
         label = { "${it.toInt()}" },
         onChange = { v -> glowWith("text-glow-range") { put("range", v.toInt()) } },
         onDone = { vm.endGesture() },
-        title = "Range",
+        title = "范围",
     )
 }
 
@@ -1557,7 +1557,7 @@ private fun ShadowPart(vm: EditorViewModel, clipId: String, style: JSONObject, c
         label = { "${it.toInt()}" },
         onChange = { v -> shadowWith("text-shadow-opacity") { put("opacity", v.toInt()) } },
         onDone = { vm.endGesture() },
-        title = "Opacity",
+        title = "不透明度",
     )
     ValueSlider(
         value = now.optDouble("blur", 20.0).toFloat(),
@@ -1565,7 +1565,7 @@ private fun ShadowPart(vm: EditorViewModel, clipId: String, style: JSONObject, c
         label = { "${it.toInt()}" },
         onChange = { v -> shadowWith("text-shadow-blur") { put("blur", v.toInt()) } },
         onDone = { vm.endGesture() },
-        title = "Blur",
+        title = "模糊",
     )
     ValueSlider(
         value = now.optDouble("distance", 20.0).toFloat(),
@@ -1573,7 +1573,7 @@ private fun ShadowPart(vm: EditorViewModel, clipId: String, style: JSONObject, c
         label = { "${it.toInt()}" },
         onChange = { v -> shadowWith("text-shadow-distance") { put("distance", v.toInt()) } },
         onDone = { vm.endGesture() },
-        title = "Distance",
+        title = "距离",
     )
     ValueSlider(
         value = now.optDouble("angle", 45.0).toFloat(),
@@ -1581,7 +1581,7 @@ private fun ShadowPart(vm: EditorViewModel, clipId: String, style: JSONObject, c
         label = { "${it.toInt()}°" },
         onChange = { v -> shadowWith("text-shadow-angle") { put("angle", v.toInt()) } },
         onDone = { vm.endGesture() },
-        title = "Angle",
+        title = "角度",
     )
 }
 
@@ -1600,7 +1600,7 @@ private fun CurvePart(vm: EditorViewModel, clipId: String) {
         label = { "${it.toInt()}" },
         onChange = { v -> setStyle(vm, clipId, CURVE, JSONObject().put("bend", v.toInt()), "text-curve") },
         onDone = { vm.endGesture() },
-        title = "Intensity",
+        title = "强度",
     )
 }
 
