@@ -68,14 +68,14 @@ private const val ENHANCE_CLEAN = 30.0
 private class QualityTool(val key: String, val label: String, val icon: ImageVector)
 
 private val TOOLS = listOf(
-    QualityTool("enhance", "Auto enhance", LucideIcons.WandSparkles),
-    QualityTool("hd", "Enhance quality", MaterialIcons.Hd),
-    QualityTool("noise", "Reduce image noise", MaterialIcons.Grain),
-    QualityTool("auto", "Auto adjust", LucideIcons.Palette),
-    QualityTool("stabilize", "Stabilize", LucideIcons.Vibrate),
-    QualityTool("flow", "Optical flow", LucideIcons.Layers),
-    QualityTool("superres", "Super resolution", LucideIcons.ZoomIn),
-    QualityTool("flicker", "Remove flickers", LucideIcons.Sun),
+    QualityTool("enhance", "画质增强", LucideIcons.WandSparkles),
+    QualityTool("hd", "提升画质", MaterialIcons.Hd),
+    QualityTool("noise", "降低图像噪点", MaterialIcons.Grain),
+    QualityTool("auto", "自动调整", LucideIcons.Palette),
+    QualityTool("stabilize", "视频防抖", LucideIcons.Vibrate),
+    QualityTool("flow", "光流补帧", LucideIcons.Layers),
+    QualityTool("superres", "超分辨率", LucideIcons.ZoomIn),
+    QualityTool("flicker", "消除闪烁", LucideIcons.Sun),
 )
 
 /**
@@ -111,19 +111,19 @@ internal fun autoAdjustments(frame: Bitmap): JSONObject {
     val mid = lum[n / 2]
     val out = JSONObject()
     val brightness = ((0.47f - mid) * 110).coerceIn(-30f, 30f)
-    if (abs(brightness) >= 3) out.put("brightness", brightness.roundToInt())
+    if (abs(brightness) >= 3) out.put("亮度", brightness.roundToInt())
     val contrast = ((0.82f - (hi - lo)) * 80).coerceIn(-15f, 35f)
-    if (abs(contrast) >= 3) out.put("contrast", contrast.roundToInt())
-    if (hi > 0.96f) out.put("highlights", -20)
-    if (lo < 0.04f) out.put("shadows", 20)
+    if (abs(contrast) >= 3) out.put("对比度", contrast.roundToInt())
+    if (hi > 0.96f) out.put("高光", -20)
+    if (lo < 0.04f) out.put("阴影", 20)
     val saturation = ((0.28 - chroma / n) * 80).coerceIn(0.0, 25.0)
-    if (saturation >= 3) out.put("saturation", saturation.roundToInt())
+    if (saturation >= 3) out.put("饱和度", saturation.roundToInt())
     val g = (sg / n).coerceAtLeast(0.02)
     // a warm cast is cooled by a higher kelvin, a green one pushed towards magenta
     val warmth = (sr - sb) / n / g
-    if (abs(warmth) > 0.04) out.put("temperature", (6500 + warmth * 5000).coerceIn(5000.0, 8500.0).roundToInt())
+    if (abs(warmth) > 0.04) out.put("色温", (6500 + warmth * 5000).coerceIn(5000.0, 8500.0).roundToInt())
     val green = (sg / n - (sr + sb) / n / 2) / g
-    if (abs(green) > 0.04) out.put("tint", (green * 150).coerceIn(-30.0, 30.0).roundToInt())
+    if (abs(green) > 0.04) out.put("色调", (green * 150).coerceIn(-30.0, 30.0).roundToInt())
     return out
 }
 
@@ -133,7 +133,7 @@ private fun scaled(base: JSONObject, strength: Double): JSONObject {
     val f = strength / 100.0
     for (key in base.keys()) {
         val v = base.optDouble(key)
-        out.put(key, if (key == "temperature") 6500 + (v - 6500) * f else v * f)
+        out.put(key, if (key == "色温") 6500 + (v - 6500) * f else v * f)
     }
     return out
 }
@@ -329,7 +329,7 @@ internal fun ColumnScope.QualityContent(vm: EditorViewModel) {
 
     fun tap(key: String) {
         if (!visual) {
-            vm.message = "Choose a video or photo first"
+            vm.message = "请先选择视频或照片"
             return
         }
         when (key) {
@@ -346,29 +346,29 @@ internal fun ColumnScope.QualityContent(vm: EditorViewModel) {
                 val s = vm.session
                 when {
                     c == null || s == null -> {}
-                    c.kind != "video" -> vm.message = "Optical flow is for videos"
+                    c.kind != "video" -> vm.message = "光流补帧仅适用于视频"
                     smoothing != null -> {}
                     smoothed && which != "flow" -> {}
-                    !smoothed && c.speed > 0.95 -> vm.message = "Slow the clip down first"
+                    !smoothed && c.speed > 0.95 -> vm.message = "请先降低片段速度"
                     else -> {
                         val on = !smoothed
                         if (on) smoothing = 0f
                         vm.stop()
                         scope.launch(io.github.artcraftandroid.capcraft.engine.Threads.commands) {
                             runCatching { s.smoothSlowMotion(c.id, on, smoothListener) }
-                                .onFailure { e -> launch(kotlinx.coroutines.Dispatchers.Main) { smoothing = null; vm.message = e.message ?: "Could not smooth the motion" } }
+                                .onFailure { e -> launch(kotlinx.coroutines.Dispatchers.Main) { smoothing = null; vm.message = e.message ?: "无法平滑视频画面" } }
                         }
                     }
                 }
                 which = "flow"
             }
-            "stabilize" -> if (clip?.kind == "video") vm.panel = Panel.Stabilize else vm.message = "Stabilize is for videos"
+            "stabilize" -> if (clip?.kind == "video") vm.panel = Panel.Stabilize else vm.message = "视频防抖仅适用于视频"
             "flicker" -> {
                 val c = clip
                 val s = vm.session
                 when {
                     c == null || s == null -> {}
-                    c.kind != "video" -> vm.message = "Remove flickers is for videos"
+                    c.kind != "video" -> vm.message = "消除闪烁仅适用于视频"
                     evening != null -> {}
                     // a second tap on the chosen tool puts the original back
                     deflickered && which != "flicker" -> {}
@@ -378,7 +378,7 @@ internal fun ColumnScope.QualityContent(vm: EditorViewModel) {
                         vm.stop()
                         scope.launch(io.github.artcraftandroid.capcraft.engine.Threads.commands) {
                             runCatching { s.removeFlicker(c.id, on, evenListener) }
-                                .onFailure { e -> launch(kotlinx.coroutines.Dispatchers.Main) { evening = null; vm.message = e.message ?: "Could not remove flickers" } }
+                                .onFailure { e -> launch(kotlinx.coroutines.Dispatchers.Main) { evening = null; vm.message = e.message ?: "无法消除闪烁" } }
                         }
                     }
                 }
@@ -452,22 +452,22 @@ internal fun ColumnScope.QualityContent(vm: EditorViewModel) {
     var held by remember(which, clip?.id) { mutableStateOf<Float?>(null) }
     when {
         smoothing != null -> Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Smoothing the motion… ${((smoothing ?: 0f) * 100).roundToInt()}%", style = Type.Small.copy(color = Palette.Text), modifier = Modifier.weight(1f))
+            Text("正在平滑画面… ${((smoothing ?: 0f) * 100).roundToInt()}%", style = Type.Small.copy(color = Palette.Text), modifier = Modifier.weight(1f))
             Text(
-                "Cancel",
+                "取消",
                 style = Type.Small.copy(color = Palette.Text),
                 modifier = Modifier.clickable { runCatching { io.github.artcraftandroid.capcraft.core.cancelSmoothSlowMotion() } }.padding(8.dp),
             )
         }
         evening != null -> Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Removing flickers… ${((evening ?: 0f) * 100).roundToInt()}%", style = Type.Small.copy(color = Palette.Text), modifier = Modifier.weight(1f))
+            Text("正在消除闪烁… ${((evening ?: 0f) * 100).roundToInt()}%", style = Type.Small.copy(color = Palette.Text), modifier = Modifier.weight(1f))
             Text(
-                "Cancel",
+                "取消",
                 style = Type.Small.copy(color = Palette.Text),
                 modifier = Modifier.clickable { runCatching { io.github.artcraftandroid.capcraft.core.cancelDeflicker() } }.padding(8.dp),
             )
         }
-        working -> Text("Reading the picture…", style = Type.Small.copy(color = Palette.TextSecondary), modifier = Modifier.padding(horizontal = 20.dp))
+        working -> Text("正在读取画面…", style = Type.Small.copy(color = Palette.TextSecondary), modifier = Modifier.padding(horizontal = 20.dp))
         strength != null -> ValueSlider(
             value = held ?: strength.toFloat(),
             range = 0f..100f,
@@ -498,7 +498,7 @@ internal fun ColumnScope.QualityContent(vm: EditorViewModel) {
         ) {
             Glyph(LucideIcons.RotateCcw, Palette.DockText, size = 18.dp)
             Spacer(Modifier.width(6.dp))
-            Text("Reset", style = Type.Body.copy(color = Palette.DockText))
+            Text("重置", style = Type.Body.copy(color = Palette.DockText))
         }
     }
 }
