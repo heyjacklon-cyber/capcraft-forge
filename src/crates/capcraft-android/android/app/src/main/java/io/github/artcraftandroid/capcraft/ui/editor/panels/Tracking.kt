@@ -102,7 +102,7 @@ fun TrackingPanel(vm: EditorViewModel) {
                     progress = null
                     vm.applyView(result)
                     vm.panel = null
-                    vm.message = "Tracking added"
+                    vm.message = "已添加跟踪"
                 }
             }
 
@@ -114,11 +114,11 @@ fun TrackingPanel(vm: EditorViewModel) {
             }
         }
     }
-    PanelFrame("Tracking", vm, height = 200.dp, titleOnTop = true) {
+    PanelFrame("运动跟踪", vm, height = 200.dp, titleOnTop = true) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             val running = progress
             Text(
-                if (running == null) "Drag the ring onto what the clip should follow, then start." else "Following… ${(running * 100).toInt()}%",
+                if (running == null) "将圆环拖到需要跟踪的对象上，然后开始跟踪。" else "Following… ${(running * 100).toInt()}%",
                 style = Type.Body.copy(color = Palette.Text, textAlign = TextAlign.Center),
             )
             Spacer(Modifier.height(16.dp))
@@ -145,7 +145,7 @@ fun TrackingPanel(vm: EditorViewModel) {
                     Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(running.coerceIn(0f, 1f)).height(46.dp).background(Palette.Accent.copy(alpha = 0.5f)))
                 }
                 Text(
-                    if (running == null) "Start" else "Stop",
+                    if (running == null) "开始" else "停止",
                     style = Type.BodyStrong.copy(fontSize = 16.sp, color = if (running == null) Palette.OnAccent else Palette.Text),
                 )
             }
@@ -176,7 +176,7 @@ fun CameraTrackingPanel(vm: EditorViewModel) {
                     progress = null
                     vm.applyView(result)
                     vm.panel = null
-                    vm.message = "Camera tracking added"
+                    vm.message = "已添加镜头跟踪"
                 }
             }
 
@@ -188,9 +188,9 @@ fun CameraTrackingPanel(vm: EditorViewModel) {
             }
         }
     }
-    PanelFrame("Camera tracking", vm, height = 300.dp, titleOnTop = true) {
+    PanelFrame("镜头跟踪", vm, height = 300.dp, titleOnTop = true) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Text("Select tracking subject", style = Type.Small.copy(color = Palette.TextSecondary, fontSize = 13.sp))
+            Text("选择跟踪对象", style = Type.Small.copy(color = Palette.TextSecondary, fontSize = 13.sp))
             Spacer(Modifier.height(10.dp))
             Box(
                 Modifier.size(width = 104.dp, height = 56.dp).clip(RoundedCornerShape(6.dp)).background(Color(0xFF262626))
@@ -199,11 +199,11 @@ fun CameraTrackingPanel(vm: EditorViewModel) {
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Glyph(LucideIcons.Crosshair, Palette.Accent, size = 20.dp)
-                    Text("Custom", style = Type.Small.copy(color = Palette.Accent, fontSize = 12.sp))
+                    Text("自定义", style = Type.Small.copy(color = Palette.Accent, fontSize = 12.sp))
                 }
             }
             Spacer(Modifier.height(6.dp))
-            ValueSlider(zoom, 1f..2f, { "${(it * 100).roundToInt()}%" }, { zoom = it }, {}, title = "Zoom")
+            ValueSlider(zoom, 1f..2f, { "${(it * 100).roundToInt()}%" }, { zoom = it }, {}, title = "缩放")
             Spacer(Modifier.height(4.dp))
             val running = progress
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -230,7 +230,7 @@ fun CameraTrackingPanel(vm: EditorViewModel) {
                         Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(running.coerceIn(0f, 1f)).height(40.dp).background(Palette.Accent.copy(alpha = 0.5f)))
                     }
                     Text(
-                        if (running == null) "Track" else "Stop  ${(running * 100).toInt()}%",
+                        if (running == null) "跟踪" else "Stop  ${(running * 100).toInt()}%",
                         style = Type.BodyStrong.copy(fontSize = 15.sp, color = Color.White),
                     )
                 }
