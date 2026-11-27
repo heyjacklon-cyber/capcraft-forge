@@ -113,10 +113,10 @@ fun EnterCaptionsPage(vm: EditorViewModel) {
         if (!voiceover || m == null || v == null) {
             vm.edit { enterCaptions(words, at) }
             vm.panel = null
-            vm.message = "Captions added"
+            vm.message = "字幕已添加"
             return
         }
-        busy = "Reading aloud" to 0f
+        busy = "正在朗读" to 0f
         scope.launch(Threads.commands) {
             runCatching { s.enterCaptionsSpoken(words, at, m.id, v, listener(scope, vm, { busy = it }, { refresh++; if (afterDownload) { afterDownload = false } })) }
                 .onFailure { e -> launch(Dispatchers.Main) { busy = null; vm.message = e.userMessage } }
@@ -134,12 +134,12 @@ fun EnterCaptionsPage(vm: EditorViewModel) {
         ) {
             Row(Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(44.dp).clickable { vm.panel = null }, contentAlignment = Alignment.Center) {
-                    Glyph(LucideIcons.X, Palette.Text, size = 24.dp, description = "Close")
+                    Glyph(LucideIcons.X, Palette.Text, size = 24.dp, description = "关闭")
                 }
                 Spacer(Modifier.weight(1f))
                 val ready = words.isNotBlank() && busy == null
                 Text(
-                    "Next",
+                    "下一步",
                     style = Type.BodyStrong.copy(fontSize = 15.sp, color = if (ready) Color.Black else Color(0x99000000)),
                     modifier = Modifier.clip(RoundedCornerShape(8.dp))
                         .background(if (ready) Palette.Accent else Palette.Accent.copy(alpha = 0.45f))
@@ -148,7 +148,7 @@ fun EnterCaptionsPage(vm: EditorViewModel) {
                             if (voiceover && m != null && !m.downloaded) {
                                 // the voice is fetched once, then the captions are made
                                 afterDownload = true
-                                busy = "Downloading the voice" to 0f
+                                busy = "正在下载语音模型" to 0f
                                 runCatching {
                                     downloadSpeechModel(m.id, m.family, listener(scope, vm, { busy = it }) {
                                         refresh++
@@ -180,15 +180,15 @@ fun EnterCaptionsPage(vm: EditorViewModel) {
                             Text(words, style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text, lineHeight = 24.sp))
                         } else {
                             Column {
-                                Text("Enter text", style = Type.Body.copy(fontSize = 16.sp, color = Palette.TextSecondary))
+                                Text("输入文字", style = Type.Body.copy(fontSize = 16.sp, color = Palette.TextSecondary))
                                 Spacer(Modifier.height(4.dp))
                                 Text(
-                                    "Type or paste a script. Each line becomes a caption of its own.",
+                                    "输入或粘贴文稿，每一行都会生成一条独立字幕。",
                                     style = Type.Body.copy(fontSize = 16.sp, color = Palette.TextSecondary, lineHeight = 24.sp),
                                 )
                                 Spacer(Modifier.height(12.dp))
                                 Text(
-                                    "Try an example",
+                                    "试试示例",
                                     style = Type.Body.copy(color = Palette.Text),
                                     modifier = Modifier.clip(RoundedCornerShape(8.dp)).border(1.dp, Color(0xFF6C6F76), RoundedCornerShape(8.dp))
                                         .clickable { words = EXAMPLE }.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -206,7 +206,7 @@ fun EnterCaptionsPage(vm: EditorViewModel) {
                         contentAlignment = Alignment.Center,
                     ) { if (voiceover) Glyph(LucideIcons.Check, Color.Black, size = 14.dp) }
                     Spacer(Modifier.width(10.dp))
-                    Text("Voiceover", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text))
+                    Text("配音", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text))
                 }
                 if (voiceover) {
                     Spacer(Modifier.height(10.dp))
@@ -238,7 +238,7 @@ fun EnterCaptionsPage(vm: EditorViewModel) {
                     Spacer(Modifier.height(6.dp))
                     LinearProgressIndicator(progress = { fraction }, modifier = Modifier.fillMaxWidth(), color = Palette.Accent, trackColor = Palette.Disabled)
                     Spacer(Modifier.height(10.dp))
-                    Text("Cancel", style = Type.BodyStrong, modifier = Modifier.clickable { runCatching { cancelSpeech() }; busy = null; afterDownload = false })
+                    Text("取消", style = Type.BodyStrong, modifier = Modifier.clickable { runCatching { cancelSpeech() }; busy = null; afterDownload = false })
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -260,10 +260,10 @@ private fun listener(
         scope.launch(Dispatchers.Main) {
             onBusy(
                 when (stage) {
-                    "download" -> "Downloading the voice"
-                    "unpack" -> "Unpacking"
-                    "load" -> "Loading the voice"
-                    else -> "Reading aloud"
+                    "download" -> "正在下载语音模型"
+                    "unpack" -> "正在解压"
+                    "load" -> "正在加载语音模型"
+                    else -> "正在朗读"
                 } to fraction,
             )
         }
@@ -275,7 +275,7 @@ private fun listener(
                 onBusy(null)
                 vm.applyView(result)
                 vm.panel = null
-                vm.message = "Captions added"
+                vm.message = "字幕已添加"
             } else {
                 // a download finished
                 onFetched()
