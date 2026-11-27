@@ -77,11 +77,11 @@ fun TranscriptPanel(vm: EditorViewModel) {
     DisposableEffect(Unit) { onDispose { if (job != null) runCatching { cancelSpeech() } } }
 
     fun stageName(stage: String) = when (stage) {
-        "download" -> "Downloading"
-        "unpack" -> "Unpacking"
-        "read" -> "Reading the sound"
-        "load" -> "Loading"
-        else -> "Listening"
+        "download" -> "正在下载"
+        "unpack" -> "正在解压"
+        "read" -> "正在读取音频"
+        "load" -> "正在加载"
+        else -> "正在识别"
     }
 
     val listener = remember {
@@ -94,7 +94,7 @@ fun TranscriptPanel(vm: EditorViewModel) {
                 scope.launch(Dispatchers.Main) {
                     job = null
                     vm.transcript = lines
-                    if (lines.isEmpty()) vm.message = "No speech was found"
+                    if (lines.isEmpty()) vm.message = "未检测到语音"
                 }
             }
 
@@ -132,12 +132,12 @@ fun TranscriptPanel(vm: EditorViewModel) {
     fun transcribe() {
         val m = model ?: return
         if (!m.downloaded) {
-            job = "Downloading" to 0f
+            job = "正在下载" to 0f
             runCatching { downloadSpeechModel(m.id, m.family, download) }.onFailure { job = null; vm.message = it.userMessage }
             return
         }
         val s = vm.session ?: return
-        job = "Reading the sound" to 0f
+        job = "正在读取音频" to 0f
         scope.launch(Threads.commands) {
             runCatching { s.transcript(m.id, listener) }
                 .onFailure { e -> launch(Dispatchers.Main) { job = null; vm.message = e.userMessage } }
@@ -161,17 +161,17 @@ fun TranscriptPanel(vm: EditorViewModel) {
         }
     }
 
-    PanelFrame("Transcript", vm, tall = true, titleOnTop = true, left = {
+    PanelFrame("语音转文字", vm, tall = true, titleOnTop = true, left = {
         if (lines != null && job == null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "Again",
+                    "重新识别",
                     style = Type.Small.copy(color = Palette.DockText),
                     modifier = Modifier.clickable { transcribe() }.padding(8.dp),
                 )
                 // the quiet between what is said, cut out; the lines move up to match
                 Text(
-                    "Remove pauses",
+                    "删除停顿",
                     style = Type.Small.copy(color = Palette.Accent),
                     modifier = Modifier.clickable {
                         vm.edit {
@@ -182,7 +182,7 @@ fun TranscriptPanel(vm: EditorViewModel) {
                     }.padding(8.dp),
                 )
                 Text(
-                    "Fillers",
+                    "语气词",
                     style = Type.Small.copy(color = Palette.Accent),
                     modifier = Modifier.clickable { vm.panel = Panel.Fillers }.padding(8.dp),
                 )
@@ -200,7 +200,7 @@ fun TranscriptPanel(vm: EditorViewModel) {
                 }
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Stop",
+                    "停止",
                     style = Type.BodyStrong.copy(color = Palette.DockText),
                     modifier = Modifier.clickable { runCatching { cancelSpeech() }; job = null }.padding(8.dp),
                 )
@@ -210,7 +210,7 @@ fun TranscriptPanel(vm: EditorViewModel) {
                 Glyph(LucideIcons.FileText, Palette.DockText, size = 34.dp)
                 Spacer(Modifier.height(14.dp))
                 Text(
-                    "Turn what is said into text, then cut the video by deleting its lines.",
+                    "将语音转换为文字，然后删除对应文本行即可剪辑视频。",
                     style = Type.Body.copy(color = Palette.Text, textAlign = TextAlign.Center),
                 )
                 Spacer(Modifier.height(22.dp))
@@ -221,15 +221,15 @@ fun TranscriptPanel(vm: EditorViewModel) {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        if (m != null && !m.downloaded) "Download and transcribe (%.0f MB)".format(m.sizeBytes.toLong() / 1_048_576.0) else "Transcribe",
+                        if (m != null && !m.downloaded) "Download and transcribe (%.0f MB)".format(m.sizeBytes.toLong() / 1_048_576.0) else "开始转录",
                         style = Type.BodyStrong.copy(fontSize = 16.sp, color = Palette.OnAccent),
                     )
                 }
                 Spacer(Modifier.height(8.dp))
-                Text("Made on this phone; nothing is uploaded.", style = Type.Tiny.copy(color = Palette.TextSecondary))
+                Text("所有处理均在本机完成，不会上传音频。", style = Type.Tiny.copy(color = Palette.TextSecondary))
             }
             lines.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No speech was found", style = Type.Body.copy(color = Palette.TextSecondary))
+                Text("未检测到语音", style = Type.Body.copy(color = Palette.TextSecondary))
             }
             else -> LazyColumn(Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
                 itemsIndexed(lines, key = { _, l -> "${l.startUs}-${l.text}" }) { i, line ->
@@ -250,7 +250,7 @@ fun TranscriptPanel(vm: EditorViewModel) {
                         Box(
                             Modifier.size(38.dp).clip(CircleShape).clickable { cut(i) },
                             contentAlignment = Alignment.Center,
-                        ) { Glyph(LucideIcons.Trash2, Palette.TextSecondary, size = 18.dp, description = "Cut this line") }
+                        ) { Glyph(LucideIcons.Trash2, Palette.TextSecondary, size = 18.dp, description = "剪掉这一句") }
                     }
                 }
             }
