@@ -131,7 +131,7 @@ fun ExportScreen(vm: EditorViewModel, onClose: () -> Unit, onHome: () -> Unit) {
                     }
                 }
                 val uri = made.getOrNull()?.let { withContext(Dispatchers.IO) { publishLive(context, it) } }
-                stage = if (uri != null) Stage.Done(uri) else Stage.Failed(made.exceptionOrNull()?.userMessage ?: "The photo could not be saved.")
+                stage = if (uri != null) Stage.Done(uri) else Stage.Failed(made.exceptionOrNull()?.userMessage ?: "照片保存失败。")
                 return@LaunchedEffect
             }
             val picture = withContext(Threads.preview) {
@@ -139,7 +139,7 @@ fun ExportScreen(vm: EditorViewModel, onClose: () -> Unit, onHome: () -> Unit) {
             }
             cover = picture
             val uri = picture?.let { withContext(Dispatchers.IO) { publishPhoto(context, it) } }
-            stage = if (uri != null) Stage.Done(uri) else Stage.Failed("The photo could not be saved.")
+            stage = if (uri != null) Stage.Done(uri) else Stage.Failed("照片保存失败。")
             return@LaunchedEffect
         }
         cover = withContext(Threads.preview) {
@@ -166,13 +166,13 @@ fun ExportScreen(vm: EditorViewModel, onClose: () -> Unit, onHome: () -> Unit) {
             override fun onDone(path: String) {
                 scope.launch {
                     val uri = withContext(Dispatchers.IO) { if (gif) publishGif(appContext, File(path)) else publish(appContext, File(path)) }
-                    ExportService.finish(appContext, if (gif) "Saved to Pictures" else "Saved to your device")
+                    ExportService.finish(appContext, if (gif) "已保存到图片" else "已保存到设备")
                     stage = Stage.Done(uri)
                 }
             }
 
             override fun onFailed(message: String, cancelled: Boolean) {
-                ExportService.finish(appContext, if (cancelled) null else "Export failed")
+                ExportService.finish(appContext, if (cancelled) null else "导出失败")
                 scope.launch(Dispatchers.Main) {
                     if (cancelled) onClose() else stage = Stage.Failed(message)
                 }
@@ -228,7 +228,7 @@ fun ExportScreen(vm: EditorViewModel, onClose: () -> Unit, onHome: () -> Unit) {
             }
             Spacer(Modifier.weight(1f))
             if (stage is Stage.Done) {
-                Text("Done", style = Type.BodyStrong, modifier = Modifier.clickable(onClick = onHome).padding(12.dp))
+                Text("完成", style = Type.BodyStrong, modifier = Modifier.clickable(onClick = onHome).padding(12.dp))
             }
         }
         Column(Modifier.fillMaxWidth().weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -277,7 +277,7 @@ fun ExportScreen(vm: EditorViewModel, onClose: () -> Unit, onHome: () -> Unit) {
                         Box(Modifier.weight(1f).height(1.dp).background(Color(0x33FFFFFF)))
                         Glyph(LucideIcons.Lightbulb, Palette.TextSecondary, size = 16.dp, modifier = Modifier.padding(horizontal = 8.dp))
                         Text(
-                            "You can leave CapCraft Forge while the video saves",
+                            "视频保存期间可以离开 CapCraft Forge",
                             style = Type.Small.copy(textAlign = TextAlign.Center),
                             modifier = Modifier.width(240.dp),
                         )
@@ -288,16 +288,16 @@ fun ExportScreen(vm: EditorViewModel, onClose: () -> Unit, onHome: () -> Unit) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Glyph(LucideIcons.CircleCheck, Palette.Accent, size = 20.dp)
                         Spacer(Modifier.width(6.dp))
-                        Text(if (vm.exportGif || vm.exportPhoto) "Saved to Pictures" else "Saved to your device", style = Type.BodyStrong.copy(fontSize = 16.sp))
+                        Text(if (vm.exportGif || vm.exportPhoto) "已保存到图片" else "已保存到设备", style = Type.BodyStrong.copy(fontSize = 16.sp))
                     }
                     Spacer(Modifier.height(26.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(36.dp)) {
-                        ShareTarget(LucideIcons.Share2, "Share") { st.uri?.let { share(context, it) } }
-                        ShareTarget(LucideIcons.ExternalLink, "Open") { st.uri?.let { open(context, it, vm.exportGif, vm.exportPhoto) } }
+                        ShareTarget(LucideIcons.Share2, "分享") { st.uri?.let { share(context, it) } }
+                        ShareTarget(LucideIcons.ExternalLink, "打开") { st.uri?.let { open(context, it, vm.exportGif, vm.exportPhoto) } }
                     }
                 }
                 is Stage.Failed -> {
-                    Text("Export failed", style = Type.Title)
+                    Text("导出失败", style = Type.Title)
                     Spacer(Modifier.height(8.dp))
                     Text(st.message, style = Type.Small.copy(textAlign = TextAlign.Center), modifier = Modifier.padding(horizontal = 32.dp))
                     Spacer(Modifier.height(20.dp))
@@ -307,7 +307,7 @@ fun ExportScreen(vm: EditorViewModel, onClose: () -> Unit, onHome: () -> Unit) {
                             stage = Stage.Running(0f)
                             attempt++
                         }.padding(horizontal = 24.dp, vertical = 10.dp),
-                    ) { Text("Try again", style = Type.BodyStrong.copy(color = Color.White)) }
+                    ) { Text("重试", style = Type.BodyStrong.copy(color = Color.White)) }
                 }
             }
         }
@@ -315,7 +315,7 @@ fun ExportScreen(vm: EditorViewModel, onClose: () -> Unit, onHome: () -> Unit) {
             Box(
                 Modifier.padding(16.dp).fillMaxWidth().height(44.dp).clip(RoundedCornerShape(8.dp)).background(Color(0x22FFFFFF)).clickable(onClick = onHome),
                 contentAlignment = Alignment.Center,
-            ) { Text("New project", style = Type.BodyStrong) }
+            ) { Text("新建项目", style = Type.BodyStrong) }
         }
     }
 }
