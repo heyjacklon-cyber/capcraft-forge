@@ -71,7 +71,7 @@ import org.json.JSONObject
 
 /** The crop shapes, width over height; 0 is a free crop. */
 private val RATIOS = listOf(
-    "Custom" to 0.0,
+    "自定义" to 0.0,
     "9:16" to 9.0 / 16,
     "16:9" to 16.0 / 9,
     "1:1" to 1.0,
@@ -179,16 +179,16 @@ fun CropPanel(vm: EditorViewModel) {
     ) {
         Row(Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(44.dp).clickable { vm.panel = null }, contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.X, Color.White, size = 24.dp, description = "Cancel")
+                Glyph(LucideIcons.X, Color.White, size = 24.dp, description = "取消")
             }
             Text(
-                "Resize",
+                "调整尺寸",
                 style = Type.Body.copy(color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium),
                 modifier = Modifier.weight(1f),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
             Box(Modifier.size(44.dp).clickable(onClick = ::apply), contentAlignment = Alignment.Center) {
-                Glyph(LucideIcons.Check, Color.White, size = 26.dp, description = "Done")
+                Glyph(LucideIcons.Check, Color.White, size = 26.dp, description = "完成")
             }
         }
         // the picture and the frame
@@ -227,7 +227,7 @@ fun CropPanel(vm: EditorViewModel) {
         }
         Spacer(Modifier.height(12.dp))
         Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-            Text("Rotate", style = Type.BodyStrong.copy(color = Color.White, fontSize = 15.sp))
+            Text("旋转", style = Type.BodyStrong.copy(color = Color.White, fontSize = 15.sp))
             Text(
                 "${straighten.roundToInt()}°",
                 style = Type.BodyStrong.copy(color = Color.White, fontSize = 15.sp),
@@ -236,7 +236,7 @@ fun CropPanel(vm: EditorViewModel) {
         }
         DegreeRuler(straighten, { straighten = it }, Modifier.fillMaxWidth().height(56.dp))
         Spacer(Modifier.height(10.dp))
-        Text("Aspect ratio", style = Type.BodyStrong.copy(color = Color.White, fontSize = 15.sp), modifier = Modifier.padding(horizontal = 16.dp))
+        Text("画面比例", style = Type.BodyStrong.copy(color = Color.White, fontSize = 15.sp), modifier = Modifier.padding(horizontal = 16.dp))
         Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 10.dp)) {
             RATIOS.forEachIndexed { i, (label, aspect) ->
@@ -293,7 +293,7 @@ fun CropPanel(vm: EditorViewModel) {
         ) {
             Glyph(LucideIcons.Trash2, Color.White, size = 16.dp)
             Spacer(Modifier.width(6.dp))
-            Text("Reset", style = Type.Small.copy(color = Color.White, fontSize = 13.sp))
+            Text("重置", style = Type.Small.copy(color = Color.White, fontSize = 13.sp))
         }
         Spacer(Modifier.height(14.dp))
     }
