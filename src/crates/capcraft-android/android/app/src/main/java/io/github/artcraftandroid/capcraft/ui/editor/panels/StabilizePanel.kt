@@ -43,7 +43,7 @@ import org.json.JSONObject
 /** Where the timeline keeps, for each steadied copy, the file it came from and how strongly. */
 private const val STABILIZED = "capcraftStabilized"
 
-private val LEVELS = listOf("None", "Minimal cropping", "Recommended", "Most stable")
+private val LEVELS = listOf("无", "最小裁切", "推荐", "最稳定")
 
 /**
  * Steadying shaky footage: a steadied copy of the clip's file is made on the phone (the stronger,
@@ -93,7 +93,7 @@ fun StabilizePanel(vm: EditorViewModel) {
         }
     }
 
-    PanelFrame("Stabilize", vm, height = if (progress != null) 200.dp else 162.dp) {
+    PanelFrame("视频防抖", vm, height = if (progress != null) 200.dp else 162.dp) {
         Spacer(Modifier.height(22.dp))
         StopSlider(level, LEVELS.size, enabled = progress == null, onChoose = ::choose)
         Spacer(Modifier.height(10.dp))
@@ -117,7 +117,7 @@ fun StabilizePanel(vm: EditorViewModel) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("Steadying… ${(p * 100).roundToInt()}%", style = Type.Small.copy(color = Palette.Text), modifier = Modifier.weight(1f))
                 Text(
-                    "Cancel",
+                    "取消",
                     style = Type.Small.copy(color = Palette.Text),
                     modifier = Modifier.clickable { runCatching { cancelStabilize() } }.padding(8.dp),
                 )
