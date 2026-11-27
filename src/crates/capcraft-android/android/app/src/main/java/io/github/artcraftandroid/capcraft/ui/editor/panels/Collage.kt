@@ -138,7 +138,7 @@ fun CollagePanel(vm: EditorViewModel) {
         return
     }
     val layouts = collageLayouts(kept.ids.size)
-    PanelFrame("Layout", vm, height = 150.dp) {
+    PanelFrame("布局", vm, height = 150.dp) {
         LazyRow(Modifier.fillMaxWidth().padding(top = 22.dp), contentPadding = PaddingValues(horizontal = 10.dp)) {
             items(layouts.size) { i ->
                 LayoutTile(layouts[i], i == kept.layout) {
