@@ -69,14 +69,14 @@ private class CaptionLook(
 )
 
 private val CAPTION_LOOKS = listOf(
-    CaptionLook("Default"),
-    CaptionLook("Outline", stroke = "#000000"),
-    CaptionLook("Yellow", color = "#ffd60a", stroke = "#000000", family = "Montserrat", weight = 900),
-    CaptionLook("Boxed", plate = "#000000"),
-    CaptionLook("Pink", plate = "#ff2d55"),
-    CaptionLook("Bold", shadow = true, family = "Anton", weight = 400),
-    CaptionLook("Clean", color = "#000000", plate = "#ffffff"),
-    CaptionLook("Soft", shadow = true, family = "Montserrat", weight = 700),
+    CaptionLook("默认"),
+    CaptionLook("描边", stroke = "#000000"),
+    CaptionLook("黄色", color = "#ffd60a", stroke = "#000000", family = "Montserrat", weight = 900),
+    CaptionLook("方框", plate = "#000000"),
+    CaptionLook("粉色", plate = "#ff2d55"),
+    CaptionLook("粗体", shadow = true, family = "Anton", weight = 400),
+    CaptionLook("简洁", color = "#000000", plate = "#ffffff"),
+    CaptionLook("柔和", shadow = true, family = "Montserrat", weight = 700),
 )
 
 /** The timeline's captions, as Auto captions and the caption files keep their ids. */
@@ -116,10 +116,10 @@ private fun dressCaptions(vm: EditorViewModel, look: CaptionLook): Boolean {
 fun CaptionTemplatesPanel(vm: EditorViewModel) {
     var chosen by remember { mutableIntStateOf(-1) }
     val any = remember(vm.timeline?.revision) { captionIds(vm).isNotEmpty() }
-    PanelFrame("Caption templates", vm, height = 260.dp) {
+    PanelFrame("字幕模板", vm, height = 260.dp) {
         if (!any) {
             Text(
-                "Make captions first - with Auto captions, Enter captions or a caption file - then give them all a look here.",
+                "请先使用“自动字幕”“输入字幕”或导入字幕文件生成字幕，再在这里统一设置字幕样式。",
                 style = Type.Small,
                 modifier = Modifier.padding(24.dp),
             )
@@ -143,9 +143,9 @@ fun CaptionTemplatesPanel(vm: EditorViewModel) {
 
 /** The language a caption model hears, as the sheet names it. */
 private fun languageOf(m: SpeechModel): String = when (m.id) {
-    "tiny" -> "Auto detect (fast)"
-    "base" -> "Auto detect"
-    "base.en" -> "English"
+    "tiny" -> "自动检测（快速）"
+    "base" -> "自动检测"
+    "base.en" -> "英语"
     else -> m.label
 }
 
@@ -188,13 +188,13 @@ fun AutoCaptionsSheet(vm: EditorViewModel, lyrics: Boolean = false) {
             override fun onProgress(fraction: Float, stage: String) {
                 scope.launch(Dispatchers.Main) {
                     val label = when (stage) {
-                        "download" -> "Downloading"
-                        "unpack" -> "Unpacking"
-                        "read" -> "Reading the sound"
-                        "load" -> "Loading"
+                        "download" -> "正在下载"
+                        "unpack" -> "正在解压"
+                        "read" -> "正在读取音频"
+                        "load" -> "正在加载"
                         // lyrics: the voice parted from the music before it is heard
-                        "work" -> "Separating the voice"
-                        else -> "Recognizing"
+                        "work" -> "正在分离人声"
+                        else -> "正在识别"
                     }
                     job = label to fraction
                 }
@@ -207,7 +207,7 @@ fun AutoCaptionsSheet(vm: EditorViewModel, lyrics: Boolean = false) {
                         vm.applyView(result)
                         dress()
                         vm.panel = null
-                        vm.message = "Captions added"
+                        vm.message = "字幕已添加"
                     } else {
                         then = true
                         refresh++
@@ -227,12 +227,12 @@ fun AutoCaptionsSheet(vm: EditorViewModel, lyrics: Boolean = false) {
     fun generate() {
         val m = models.getOrNull(model) ?: return
         if (!m.downloaded) {
-            job = "Downloading" to 0f
+            job = "正在下载" to 0f
             runCatching { downloadSpeechModel(m.id, m.family, listener) }.onFailure { job = null; vm.message = it.userMessage }
             return
         }
         val s = vm.session ?: return
-        job = "Reading the sound" to 0f
+        job = "正在读取音频" to 0f
         scope.launch(Threads.commands) {
             runCatching {
                 if (lyrics) s.autoLyrics(m.id, replace && existing > 0, listener)
@@ -262,22 +262,22 @@ fun AutoCaptionsSheet(vm: EditorViewModel, lyrics: Boolean = false) {
                 .navigationBarsPadding().padding(horizontal = 16.dp).padding(bottom = 14.dp),
         ) {
             Box(Modifier.fillMaxWidth().height(54.dp), contentAlignment = Alignment.Center) {
-                Text(if (lyrics) "Auto lyrics" else "Auto captions", style = Type.BodyStrong.copy(fontSize = 17.sp, color = Palette.Text))
+                Text(if (lyrics) "自动歌词" else "自动字幕", style = Type.BodyStrong.copy(fontSize = 17.sp, color = Palette.Text))
                 Box(
                     Modifier.align(Alignment.CenterEnd).size(40.dp).clickable {
                         if (job != null) runCatching { cancelSpeech() }
                         vm.panel = null
                     },
                     contentAlignment = Alignment.CenterEnd,
-                ) { Glyph(LucideIcons.X, Palette.Text, size = 24.dp, description = "Close") }
+                ) { Glyph(LucideIcons.X, Palette.Text, size = 24.dp, description = "关闭") }
             }
             Card {
-                SheetRow(LucideIcons.ScanText, "Generate from", "All sound", chevron = false) {}
+                SheetRow(LucideIcons.ScanText, "生成来源", "全部声音", chevron = false) {}
             }
             Spacer(Modifier.height(12.dp))
             Card {
                 val m = models.getOrNull(model)
-                SheetRow(LucideIcons.Languages, "Spoken language", m?.let(::languageOf) ?: "…", chevron = true, open = choosing) { choosing = !choosing }
+                SheetRow(LucideIcons.Languages, "口语语言", m?.let(::languageOf) ?: "…", chevron = true, open = choosing) { choosing = !choosing }
                 if (choosing) {
                     models.forEachIndexed { i, option ->
                         Row(
@@ -298,7 +298,7 @@ fun AutoCaptionsSheet(vm: EditorViewModel, lyrics: Boolean = false) {
                 Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Glyph(LucideIcons.Captions, Palette.Text, size = 20.dp)
                     Spacer(Modifier.width(12.dp))
-                    Text("Style", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text))
+                    Text("样式", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text))
                 }
                 Row(
                     Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 12.dp, end = 12.dp, bottom = 14.dp),
@@ -320,7 +320,7 @@ fun AutoCaptionsSheet(vm: EditorViewModel, lyrics: Boolean = false) {
                     ) {
                         Glyph(LucideIcons.Languages, Palette.Text, size = 20.dp)
                         Spacer(Modifier.width(12.dp))
-                        Text("Add English translation", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text), modifier = Modifier.weight(1f))
+                        Text("添加英文翻译", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text), modifier = Modifier.weight(1f))
                         Switch(english)
                     }
                 }
@@ -334,7 +334,7 @@ fun AutoCaptionsSheet(vm: EditorViewModel, lyrics: Boolean = false) {
                     ) {
                         Glyph(LucideIcons.Replace, Palette.Text, size = 20.dp)
                         Spacer(Modifier.width(12.dp))
-                        Text("Replace current captions", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text), modifier = Modifier.weight(1f))
+                        Text("替换当前字幕", style = Type.Body.copy(fontSize = 16.sp, color = Palette.Text), modifier = Modifier.weight(1f))
                         Switch(replace)
                     }
                 }
@@ -355,14 +355,14 @@ fun AutoCaptionsSheet(vm: EditorViewModel, lyrics: Boolean = false) {
                     when {
                         running != null -> "${running.first} ${(running.second * 100).toInt()}%"
                         m != null && !m.downloaded -> "Download and generate (${mb(m.sizeBytes)})"
-                        else -> "Generate"
+                        else -> "生成"
                     },
                     style = Type.BodyStrong.copy(fontSize = 16.sp, color = if (running == null) Palette.OnAccent else Palette.Text),
                 )
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                if (running != null) "Tap the cross to stop" else "Made on this phone; nothing is uploaded.",
+                if (running != null) "点击关闭按钮停止" else "所有处理均在本机完成，不会上传音频。",
                 style = Type.Tiny.copy(color = Palette.TextSecondary),
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             )
@@ -404,8 +404,8 @@ private fun LookChip(l: CaptionLook, selected: Boolean, onClick: () -> Unit) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        if (l.name == "Default") {
-            Text("Default", style = Type.Body.copy(color = Palette.Text))
+        if (l.name == "默认") {
+            Text("默认", style = Type.Body.copy(color = Palette.Text))
             return@Box
         }
         val colour = runCatching { Color(android.graphics.Color.parseColor(l.color)) }.getOrDefault(Color.White)
