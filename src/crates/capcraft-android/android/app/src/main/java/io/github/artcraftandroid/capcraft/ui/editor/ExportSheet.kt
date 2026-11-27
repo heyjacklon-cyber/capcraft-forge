@@ -92,7 +92,7 @@ fun ExportSheet(vm: EditorViewModel, onExport: () -> Unit) {
         ) {
             Row(Modifier.fillMaxWidth().height(50.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) {
-                    Tabs(listOf("Video", "GIF", "Photo"), if (vm.exportPhoto) 2 else if (vm.exportGif) 1 else 0) {
+                    Tabs(listOf("视频", "GIF", "照片"), if (vm.exportPhoto) 2 else if (vm.exportGif) 1 else 0) {
                         vm.exportGif = it == 1
                         vm.exportPhoto = it == 2
                     }
@@ -115,22 +115,22 @@ fun ExportSheet(vm: EditorViewModel, onExport: () -> Unit) {
                         .clickable { vm.exportSheet = false; onExport() },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("Export", style = Type.BodyStrong.copy(color = Palette.OnAccent, fontSize = 15.sp, fontWeight = FontWeight.Medium))
+                    Text("导出", style = Type.BodyStrong.copy(color = Palette.OnAccent, fontSize = 15.sp, fontWeight = FontWeight.Medium))
                 }
                 Spacer(Modifier.width(16.dp))
             }
             if (vm.exportGif) {
                 val size = GIF_SIZES.indexOf(vm.gifSize).coerceAtLeast(0)
-                SettingSlider("Resolution", "Smaller files load faster", GIF_SIZES.map { "${it}p" }, size.toFloat()) {
+                SettingSlider("分辨率", "文件越小，加载越快", GIF_SIZES.map { "${it}p" }, size.toFloat()) {
                     vm.gifSize = GIF_SIZES[it.roundToInt().coerceIn(0, GIF_SIZES.size - 1)]
                 }
                 val rate = GIF_RATES.indexOf(vm.gifFps).coerceAtLeast(0)
-                SettingSlider("Frame rate", "More pictures, smoother motion", GIF_RATES.map { "$it" }, rate.toFloat()) {
+                SettingSlider("帧率", "帧率越高，画面越流畅", GIF_RATES.map { "$it" }, rate.toFloat()) {
                     vm.gifFps = GIF_RATES[it.roundToInt().coerceIn(0, GIF_RATES.size - 1)]
                 }
                 Divider()
                 Text(
-                    "A looping picture without sound",
+                    "无声音的循环动图",
                     style = Type.Small.copy(fontSize = 13.sp),
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
@@ -139,32 +139,32 @@ fun ExportSheet(vm: EditorViewModel, onExport: () -> Unit) {
             if (!vm.exportPhoto) Presets(vm, t.width.toInt(), t.height.toInt())
             val res = exportResolutionOf(vm)
             val r = RESOLUTIONS.indexOf(res).coerceAtLeast(0)
-            SettingSlider("Resolution", RESOLUTION_HINTS[r], RESOLUTION_LABELS, r.toFloat()) {
+            SettingSlider("分辨率", RESOLUTION_HINTS[r], RESOLUTION_LABELS, r.toFloat()) {
                 vm.exportResolution = RESOLUTIONS[it.roundToInt().coerceIn(0, RESOLUTIONS.size - 1)]
             }
             if (vm.exportPhoto) {
-                SwitchRow("Live photo", "With the video round it, silent", vm.exportLive) { vm.exportLive = !vm.exportLive }
+                SwitchRow("动态照片", "将视频片段制作为无声动态照片", vm.exportLive) { vm.exportLive = !vm.exportLive }
                 Divider()
                 Text(
-                    "The picture under the playhead, saved as a photo",
+                    "将播放头所在画面保存为照片",
                     style = Type.Small.copy(fontSize = 13.sp),
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
                 return@Column
             }
             val f = FRAME_RATES.indexOf(vm.exportFps).coerceAtLeast(2)
-            SettingSlider("Frame rate", if (vm.exportFps >= 50) "Very smooth motion" else "Steady, everyday motion", FRAME_RATES.map { "$it" }, f.toFloat()) {
+            SettingSlider("帧率", if (vm.exportFps >= 50) "非常流畅" else "日常流畅", FRAME_RATES.map { "$it" }, f.toFloat()) {
                 vm.exportFps = FRAME_RATES[it.roundToInt().coerceIn(0, FRAME_RATES.size - 1)]
             }
             val dims = exportSize(t.width, t.height, res.toUInt())
             val suggested = (suggestedBitrateKbps(dims[0], dims[1], vm.exportFps.toUInt()).toInt() / 1000.0).roundToInt().coerceAtLeast(1)
             val mbps = vm.exportMbps ?: suggested
-            SettingSlider("Bitrate (Mbps)", "Suggested for this video: $suggested", MBPS.map { "$it" }, mbpsToPosition(mbps), continuous = true) {
+            SettingSlider("码率（Mbps）", "Suggested for this video: $suggested", MBPS.map { "$it" }, mbpsToPosition(mbps), continuous = true) {
                 val chosen = positionToMbps(it)
                 // the suggestion is sticky, so it can be found again
                 vm.exportMbps = if (abs(chosen - suggested) <= max(1, suggested / 10)) null else chosen
             }
-            if (t.hdr) SwitchRow("HDR", "Keeps the video's HDR, in H.265", vm.exportHdr) { vm.exportHdr = !vm.exportHdr }
+            if (t.hdr) SwitchRow("HDR", "使用 H.265 保留视频的 HDR 效果", vm.exportHdr) { vm.exportHdr = !vm.exportHdr }
             Divider()
             val kbps = exportKbps(vm, dims[0].toInt(), dims[1].toInt())
             val mb = (kbps + 128) / 8.0 / 1000.0 * (t.durationUs / 1e6)
@@ -186,8 +186,8 @@ private data class Preset(val name: String, val resolution: Int, val fps: Int, v
 
 private val PRESETS = listOf(
     Preset("Reels", 1080, 30, 20, "Instagram Reels: 1080p, 30 fps"),
-    Preset("TikTok", 1080, 30, 15, "TikTok: 1080p, 30 fps"),
-    Preset("Shorts", 1080, 60, 25, "YouTube Shorts: 1080p, 60 fps"),
+    Preset("抖音", 1080, 30, 15, "TikTok: 1080p, 30 fps"),
+    Preset("YouTube Shorts", 1080, 60, 25, "YouTube Shorts: 1080p, 60 fps"),
 )
 
 /** One tap for a platform's upload: the chips above the sliders, the one the settings match lit. */
@@ -230,11 +230,11 @@ private fun Presets(vm: EditorViewModel, width: Int, height: Int) {
 }
 
 private val RESOLUTION_HINTS = listOf(
-    "Small file for quick sharing",
-    "Good for most sharing",
-    "Sharp on any phone",
-    "Extra sharp on big screens",
-    "The finest detail, the biggest file",
+    "文件较小，适合快速分享",
+    "适合大多数分享场景",
+    "在手机上清晰显示",
+    "在大屏幕上更加清晰",
+    "最高画质，文件也最大",
 )
 
 /** A setting that is on or off: its name over a line about it, and a switch. */
