@@ -396,7 +396,7 @@ internal object OverlayFolders {
         val tree = folder(context) ?: return original
         val root = runCatching { DocumentsContract.getTreeDocumentId(tree) }.getOrNull() ?: return original
         val found = ArrayList<OverlayFile>()
-        val todo = ArrayDeque(listOf(Triple(root, "Overlays", 0)))
+        val todo = ArrayDeque(listOf(Triple(root, "叠加素材", 0)))
         while (todo.isNotEmpty() && found.size < 4000) {
             val (id, category, depth) = todo.removeFirst()
             runCatching {
@@ -487,7 +487,7 @@ private suspend fun lay(vm: EditorViewModel, context: Context, clip: ClipView, f
             val w = (h * t.width.toFloat() / t.height.toFloat()).roundToInt().coerceAtLeast(16)
             val scene = s.frame(at, w.toUInt(), h.toUInt(), Motion.STILL).intoBitmap(null)?.let(::sceneOf) ?: Scene(0.4f, 0f, 0f)
             // no larger than a frame wants it, so it stays quick to draw
-            val picture = OverlayFolders.decode(context, file.uri, 2560) ?: error("That overlay could not be read.")
+            val picture = OverlayFolders.decode(context, file.uri, 2560) ?: error("无法读取该叠加素材。")
             val small = Bitmap.createScaledBitmap(picture, 128, (128f * picture.height / picture.width).roundToInt().coerceAtLeast(1), true)
             val dir = File(vm.path, "media").apply { mkdirs() }
             val out = Media.uniqueFile(dir, Media.safeName(file.name) + ".jpg")
@@ -685,10 +685,10 @@ fun AtmospherePanel(vm: EditorViewModel) {
     }
 
     if (Trying.id != null) Trying.behind = front
-    PanelFrame("Atmosphere", vm, tall = true, titleOnTop = true, left = {
+    PanelFrame("氛围效果", vm, tall = true, titleOnTop = true, left = {
         if (Trying.id != null && !Trying.busy) {
             Text(
-                "Take off",
+                "移除",
                 style = Type.Small.copy(color = Palette.DockText),
                 modifier = Modifier.clickable {
                     val id = Trying.id ?: return@clickable
@@ -703,59 +703,59 @@ fun AtmospherePanel(vm: EditorViewModel) {
     }) {
         val list = all
         when {
-            list == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Reading your overlays", style = Type.Body.copy(color = Palette.TextSecondary)) }
+            list == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("正在读取叠加素材", style = Type.Body.copy(color = Palette.TextSecondary)) }
             list.isEmpty() -> Column(Modifier.fillMaxSize().padding(24.dp)) {
-                Text("There are no pictures in that folder.", style = Type.Body.copy(color = Palette.TextSecondary))
+                Text("该文件夹中没有图片。", style = Type.Body.copy(color = Palette.TextSecondary))
                 Spacer(Modifier.height(14.dp))
-                WideButton("Choose another") { choose.launch(shelf("Pictures")) }
+                WideButton("选择其他文件夹") { choose.launch(shelf("图片")) }
             }
             else -> {
                 val categories = remember(list) { list.map { it.category }.distinct() }
                 Tabs(categories, category) { category = it }
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 14.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Choice("All", category == -1) { category = -1 }
-                    Choice("★ Favorites", category == -2) { category = -2 }
-                    Choice("Recent", category == -3) { category = -3 }
-                    Choice("Compare", comparing) { comparing = !comparing; compareUris = emptyList() }
+                    Choice("全部", category == -1) { category = -1 }
+                    Choice("★ 收藏", category == -2) { category = -2 }
+                    Choice("最近使用", category == -3) { category = -3 }
+                    Choice("对比", comparing) { comparing = !comparing; compareUris = emptyList() }
                 }
                 if (comparing) {
                     val selected = compareUris.mapNotNull { key -> list.firstOrNull { it.uri.toString() == key } }
                     Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         selected.forEach { CompareThumb(it) }
-                        if (selected.size < 2) Text("Choose ${2 - selected.size} more to compare", style = Type.Small.copy(color = Palette.TextSecondary), modifier = Modifier.align(Alignment.CenterVertically))
+                        if (selected.size < 2) Text("再选择 ${2 - selected.size} 个进行对比", style = Type.Small.copy(color = Palette.TextSecondary), modifier = Modifier.align(Alignment.CenterVertically))
                     }
                 }
                 Text(
-                    "Original effects are generated on this phone · add a folder for your own overlays",
+                    "内置效果在本机生成 · 添加文件夹以使用自己的叠加素材",
                     Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
                     style = Type.Small.copy(color = Palette.TextSecondary),
                 )
                 if (Trying.id != null && vm.clip(Trying.id!!) != null) {
                     // one setting at a time: how strong, how big, which way turned, and where on each axis
-                    var setting by remember { mutableStateOf("Strength") }
+                    var setting by remember { mutableStateOf("强度") }
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 14.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("Strength", "Scale", "Rotate", "X axis", "Y axis").forEach { name -> Choice(name, name == setting) { setting = name } }
+                        listOf("强度", "缩放", "旋转", "水平位置", "垂直位置").forEach { name -> Choice(name, name == setting) { setting = name } }
                     }
                     val id = Trying.id!!
                     val now = remember(id, vm.timeline?.revision) { vm.clipJson(id) }
                     fun place(key: String, value: Double) =
                         vm.command(JSONObject().put("op", "setClipTransform").put("clipId", id).put(key, value), "atmosphere")
                     when (setting) {
-                        "Scale" -> ValueSlider(
+                        "缩放" -> ValueSlider(
                             value = ((now?.optDouble("scale", 1.0) ?: 1.0) * 100).toFloat(), range = 20f..400f, label = { "${it.roundToInt()}%" },
-                            onChange = { place("scale", it / 100.0) }, onDone = { vm.endGesture(); recast(vm, context, clip, scope) }, title = "Scale",
+                            onChange = { place("scale", it / 100.0) }, onDone = { vm.endGesture(); recast(vm, context, clip, scope) }, title = "缩放",
                         )
-                        "Rotate" -> ValueSlider(
+                        "旋转" -> ValueSlider(
                             value = (now?.optDouble("rotation", 0.0) ?: 0.0).toFloat().coerceIn(-180f, 180f), range = -180f..180f, label = { "${it.roundToInt()}°" },
-                            onChange = { place("rotation", it.toDouble()) }, onDone = { vm.endGesture(); recast(vm, context, clip, scope) }, title = "Rotate",
+                            onChange = { place("rotation", it.toDouble()) }, onDone = { vm.endGesture(); recast(vm, context, clip, scope) }, title = "旋转",
                         )
-                        "X axis" -> ValueSlider(
+                        "水平位置" -> ValueSlider(
                             value = ((now?.optDouble("offsetX", 0.0) ?: 0.0) * 100).toFloat().coerceIn(-100f, 100f), range = -100f..100f, label = { "${it.roundToInt()}" },
-                            onChange = { place("offsetX", it / 100.0) }, onDone = { vm.endGesture(); recast(vm, context, clip, scope) }, title = "Left / right",
+                            onChange = { place("offsetX", it / 100.0) }, onDone = { vm.endGesture(); recast(vm, context, clip, scope) }, title = "左右",
                         )
-                        "Y axis" -> ValueSlider(
+                        "垂直位置" -> ValueSlider(
                             value = ((now?.optDouble("offsetY", 0.0) ?: 0.0) * 100).toFloat().coerceIn(-100f, 100f), range = -100f..100f, label = { "${it.roundToInt()}" },
-                            onChange = { place("offsetY", it / 100.0) }, onDone = { vm.endGesture(); recast(vm, context, clip, scope) }, title = "Up / down",
+                            onChange = { place("offsetY", it / 100.0) }, onDone = { vm.endGesture(); recast(vm, context, clip, scope) }, title = "上下",
                         )
                         else -> ValueSlider(
                             value = Trying.strength * 100f, range = 0f..100f, label = { "${it.roundToInt()}" },
@@ -764,7 +764,7 @@ fun AtmospherePanel(vm: EditorViewModel) {
                                 Trying.id?.let { vm.patch(it, JSONObject().put("opacity", (v / 100f).toDouble()), "atmosphere") }
                                 Trying.warm?.takeIf { vm.clip(it) != null }?.let { vm.patch(it, JSONObject().put("opacity", min(1f, v / 100f * 1.1f).toDouble()), "atmosphere") }
                             },
-                            onDone = { vm.endGesture() }, title = "Strength",
+                            onDone = { vm.endGesture() }, title = "强度",
                         )
                     }
                     val lit = Trying.file?.takeIf { presetFor(it.category).golden }
@@ -784,16 +784,16 @@ fun AtmospherePanel(vm: EditorViewModel) {
                             var warming by remember { mutableFloatStateOf(OverlayFolders.warmth(context)) }
                             ValueSlider(
                                 value = glow * 100f, range = 0f..150f, label = { "${it.roundToInt()}" },
-                                onChange = { glow = it / 100f }, onDone = { OverlayFolders.setLook(context, glow, warming); again() }, title = "Glow",
+                                onChange = { glow = it / 100f }, onDone = { OverlayFolders.setLook(context, glow, warming); again() }, title = "发光",
                             )
                             ValueSlider(
                                 value = warming * 100f, range = 0f..100f, label = { "${it.roundToInt()}" },
-                                onChange = { warming = it / 100f }, onDone = { OverlayFolders.setLook(context, glow, warming); again() }, title = "Warm photo",
+                                onChange = { warming = it / 100f }, onDone = { OverlayFolders.setLook(context, glow, warming); again() }, title = "暖色照片",
                             )
                         }
                     }
                     Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Choice("Animate", false) {
+                        Choice("动画", false) {
                             val overlay = vm.clip(id) ?: return@Choice
                             val length = overlay.durationUs.coerceAtLeast(1).toDouble()
                             val keys = JSONArray()
@@ -806,14 +806,14 @@ fun AtmospherePanel(vm: EditorViewModel) {
                                 keys.put(JSONObject().put("op", "setClipKey").put("clipId", id).put("property", "scale").put("at", at).put("value", scale))
                             }
                             vm.command(JSONObject().put("op", "batch").put("commands", keys), "atmosphere-motion")
-                            vm.message = "Added a gentle drift animation over ${(length / 1_000_000.0).toInt().coerceAtLeast(1)} seconds"
+                            vm.message = "已添加轻柔漂移动画，时长 ${(length / 1_000_000.0).toInt().coerceAtLeast(1)} 秒"
                         }
-                        Choice("Mirror", false) {
+                        Choice("镜像", false) {
                             val id = Trying.id ?: return@Choice
                             val now = vm.clipJson(id)?.optBoolean("flipH") ?: false
                             vm.patch(id, JSONObject().put("flipH", !now))
                         }
-                        Choice("Flip", false) {
+                        Choice("翻转", false) {
                             // upside down, about the other axis
                             val id = Trying.id ?: return@Choice
                             val now = vm.clipJson(id)?.optBoolean("flipV") ?: false
@@ -822,14 +822,14 @@ fun AtmospherePanel(vm: EditorViewModel) {
                         val light = Trying.file?.takeIf { presetFor(it.category).light }
                         if (light != null && clip != null) {
                             var deep by remember { mutableStateOf(OverlayFolders.depth(context)) }
-                            Choice(if (deep) "3D light" else "2D light", deep) {
+                            Choice(if (deep) "3D 光效" else "2D 光效", deep) {
                                 deep = !deep
                                 OverlayFolders.setDepth(context, deep)
                                 // laid again the new way: the shadow cast, or taken away
                                 if (!Trying.busy) scope.launch { lay(vm, context, clip, light) }
                             }
                         }
-                        Choice(if (finding != null) "Finding people ${finding}" else "Behind people", front) {
+                        Choice(if (finding != null) "Finding people ${finding}" else "人物后方", front) {
                             val s = vm.session ?: return@Choice
                             val c = clip ?: return@Choice
                             if (finding != null) return@Choice
@@ -851,7 +851,7 @@ fun AtmospherePanel(vm: EditorViewModel) {
                             }
                         }
                         Spacer(Modifier.weight(1f))
-                        Choice("Keep", false) {
+                        Choice("保留", false) {
                             // the next one goes over this one rather than in its place
                             Trying.id = null
                             Trying.warm = null
@@ -884,7 +884,7 @@ fun AtmospherePanel(vm: EditorViewModel) {
                             if (comparing) {
                                 val key = f.uri.toString()
                                 compareUris = if (key in compareUris) compareUris - key else (compareUris + key).takeLast(2)
-                            } else if (clip == null) vm.message = "Add a clip first"
+                            } else if (clip == null) vm.message = "请先添加片段"
                             else if (!Trying.busy) {
                                 recent = (listOf(f.uri.toString()) + recent.filterNot { it == f.uri.toString() }).take(24)
                                 OverlayFolders.setRecent(context, recent)
@@ -892,7 +892,7 @@ fun AtmospherePanel(vm: EditorViewModel) {
                             }
                         }
                     }
-                    item { Box(Modifier.aspectRatio(1f).clip(RoundedCornerShape(8.dp)).background(Color(0xFF2E2E2E)).clickable { choose.launch(shelf("Pictures")) }, contentAlignment = Alignment.Center) { Glyph(LucideIcons.FolderOpen, Palette.DockText, size = 22.dp, description = "Another folder") } }
+                    item { Box(Modifier.aspectRatio(1f).clip(RoundedCornerShape(8.dp)).background(Color(0xFF2E2E2E)).clickable { choose.launch(shelf("图片")) }, contentAlignment = Alignment.Center) { Glyph(LucideIcons.FolderOpen, Palette.DockText, size = 22.dp, description = "其他文件夹") } }
                 }
             }
         }
