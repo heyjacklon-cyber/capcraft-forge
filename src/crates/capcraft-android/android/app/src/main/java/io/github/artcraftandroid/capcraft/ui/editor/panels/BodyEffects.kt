@@ -45,20 +45,20 @@ private class BodyLook(val kind: String, val label: String)
 
 private val LOOKS = listOf(
     BodyLook("", "None"),
-    BodyLook("blur", "Blur background"),
-    BodyLook("pop", "Colour pop"),
-    BodyLook("spot", "Spotlight"),
-    BodyLook("neon", "Neon outline"),
-    BodyLook("aura", "Aura"),
-    BodyLook("lines", "Glow lines"),
-    BodyLook("dream", "Dream"),
-    BodyLook("trippy", "Trippy"),
-    BodyLook("glitch", "Glitch"),
-    BodyLook("comic", "Comic"),
-    BodyLook("grey", "People grey"),
-    BodyLook("tint:$RED:70", "Angry red"),
-    BodyLook("tint:$BLUE:60", "Cold blue"),
-    BodyLook("tint:$GREEN:55", "Sick green"),
+    BodyLook("blur", "背景虚化"),
+    BodyLook("pop", "局部彩色"),
+    BodyLook("spot", "聚光灯"),
+    BodyLook("neon", "霓虹描边"),
+    BodyLook("aura", "光环"),
+    BodyLook("lines", "发光线条"),
+    BodyLook("dream", "梦幻"),
+    BodyLook("trippy", "迷幻"),
+    BodyLook("glitch", "故障风"),
+    BodyLook("comic", "漫画"),
+    BodyLook("grey", "人物灰度"),
+    BodyLook("tint:$RED:70", "炫红"),
+    BodyLook("tint:$BLUE:60", "冷蓝"),
+    BodyLook("tint:$GREEN:55", "荧绿"),
 )
 
 /** Tints for the people, as the tint effect reads a colour: red, green, blue and alpha in one number. */
@@ -84,7 +84,7 @@ private fun same(a: String, b: String) = if (a.startsWith("tint:") && b.startsWi
 fun BodyEffectsPanel(vm: EditorViewModel) {
     val clip = vm.selectedClip?.takeIf { it.kind == "video" || it.kind == "image" } ?: vm.mainClipAtPlayhead()
     if (clip == null) {
-        vm.message = "Add a video first"
+        vm.message = "请先添加视频"
         vm.panel = null
         return
     }
@@ -129,13 +129,13 @@ fun BodyEffectsPanel(vm: EditorViewModel) {
         }
     }
     val frame = vm.lastFrame
-    PanelFrame("Body effects", vm, tall = true, titleOnTop = true) {
+    PanelFrame("人物特效", vm, tall = true, titleOnTop = true) {
         val p = progress
         if (p != null) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("${p.first}… ${(p.second * 100).roundToInt()}%", style = Type.Small.copy(color = Palette.Text), modifier = Modifier.weight(1f))
                 Text(
-                    "Stop",
+                    "停止",
                     style = Type.Small.copy(color = Palette.Text),
                     modifier = Modifier.clickable { vm.session?.cancelBackground(); progress = null }.padding(4.dp),
                 )
@@ -145,9 +145,9 @@ fun BodyEffectsPanel(vm: EditorViewModel) {
         if (current == "grey" || current == "pop") {
             // grey the other way round: everything but the people
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(if (current == "grey") "The people are grey" else "All but the people is grey", style = Type.Small.copy(color = Palette.Text), modifier = Modifier.weight(1f))
+                Text(if (current == "grey") "人物显示为灰度" else "除人物外的画面显示为灰度", style = Type.Small.copy(color = Palette.Text), modifier = Modifier.weight(1f))
                 Text(
-                    "Invert", style = Type.Small.copy(color = Palette.Accent),
+                    "反转", style = Type.Small.copy(color = Palette.Accent),
                     modifier = Modifier.clickable { choose(if (current == "grey") "pop" else "grey") }.padding(8.dp),
                 )
             }
@@ -207,17 +207,17 @@ private fun TintControls(vm: EditorViewModel, clipId: String) {
             next.getJSONObject(at).optJSONObject("params")?.put("amount", v.toDouble())
             vm.patch(copy, JSONObject().put("videoEffects", next), "people-tint")
         },
-        onDone = { vm.endGesture() }, title = "Amount",
+        onDone = { vm.endGesture() }, title = "强度",
     )
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
         Text(
-            "Grow to here", style = Type.Small.copy(color = Palette.Accent),
-            modifier = Modifier.clickable { vm.edit { bodyTintRise(clipId, vm.playhead, amount.toDouble()) }; vm.message = "The colour grows from the clip's start to here" }.padding(8.dp),
+            "渐变至此处", style = Type.Small.copy(color = Palette.Accent),
+            modifier = Modifier.clickable { vm.edit { bodyTintRise(clipId, vm.playhead, amount.toDouble()) }; vm.message = "颜色效果从片段开头逐渐增强至此处" }.padding(8.dp),
         )
         Spacer(Modifier.weight(1f))
         Text(
-            "Steady", style = Type.Small.copy(color = Palette.Text),
-            modifier = Modifier.clickable { vm.edit { bodyTintRise(clipId, 0, amount.toDouble()) }; vm.message = "The colour is the same throughout" }.padding(8.dp),
+            "恒定", style = Type.Small.copy(color = Palette.Text),
+            modifier = Modifier.clickable { vm.edit { bodyTintRise(clipId, 0, amount.toDouble()) }; vm.message = "整个片段保持相同颜色效果" }.padding(8.dp),
         )
     }
 }
