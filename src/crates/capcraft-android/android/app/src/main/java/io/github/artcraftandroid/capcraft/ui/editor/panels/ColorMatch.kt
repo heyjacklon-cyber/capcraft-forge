@@ -160,7 +160,7 @@ internal fun ColumnScope.ColorMatchSheet(vm: EditorViewModel, clip: ClipView, cl
             }
             working = false
             if (found == null) {
-                vm.message = "Could not read the picture"
+                vm.message = "无法读取图片"
             } else {
                 found.put("strength", colorMatchOn(vm, clip.id)?.optDouble("strength", 100.0) ?: 100.0)
                 setColorMatch(vm, clip.id, found)
@@ -173,7 +173,7 @@ internal fun ColumnScope.ColorMatchSheet(vm: EditorViewModel, clip: ClipView, cl
             scope.launch {
                 val picked = withContext(Threads.thumbnails) { runCatching { smallPhoto(vm, uri) }.getOrNull() }
                 if (picked == null) {
-                    vm.message = "Could not read the photo"
+                    vm.message = "无法读取照片"
                 } else {
                     photo = picked
                     match { picked }
@@ -182,17 +182,17 @@ internal fun ColumnScope.ColorMatchSheet(vm: EditorViewModel, clip: ClipView, cl
         }
     }
     val on = remember(clip.json) { colorMatchOn(vm, clip.id) }
-    SheetHead("Color match", {
+    SheetHead("色彩匹配", {
         photo = null
         if (on != null) setColorMatch(vm, clip.id, null)
     }, close)
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(76.dp).clip(RoundedCornerShape(8.dp)).background(Color.Black), contentAlignment = Alignment.Center) {
-            (photo ?: frame)?.let { Image(it.asImageBitmap(), contentDescription = "Reference", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize()) }
+            (photo ?: frame)?.let { Image(it.asImageBitmap(), contentDescription = "参考画面", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize()) }
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(if (photo != null) "A photo" else "The frame at ${clock(time)}", style = Type.Small)
+            Text(if (photo != null) "一张照片" else "The frame at ${clock(time)}", style = Type.Small)
             CapSlider(
                 value = at,
                 range = 0f..1f,
@@ -205,10 +205,10 @@ internal fun ColumnScope.ColorMatchSheet(vm: EditorViewModel, clip: ClipView, cl
                 modifier = Modifier.fillMaxWidth(),
             )
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                MatchButton("Match this frame", LucideIcons.Film, enabled = !working && photo == null) {
+                MatchButton("匹配此画面", LucideIcons.Film, enabled = !working && photo == null) {
                     match { session?.frame(time, w.toUInt(), h.toUInt(), Motion.STILL)?.toBitmap() }
                 }
-                MatchButton("Photo", LucideIcons.Image, enabled = !working) {
+                MatchButton("照片", LucideIcons.Image, enabled = !working) {
                     pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
             }
@@ -229,11 +229,11 @@ internal fun ColumnScope.ColorMatchSheet(vm: EditorViewModel, clip: ClipView, cl
                 held = null
                 vm.endGesture()
             },
-            title = "Strength",
+            title = "匹配强度",
         )
     } else {
         Text(
-            if (working) "Reading the picture…" else "Choose a frame or a photo to take the colors of.",
+            if (working) "正在读取图片…" else "选择一个视频画面或照片作为色彩参考。",
             style = Type.Small,
             modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 4.dp),
         )
