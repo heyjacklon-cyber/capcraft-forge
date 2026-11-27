@@ -84,18 +84,18 @@ object Drawing {
 private class Brush(val key: String, val name: String, val pattern: Boolean = false)
 
 private val BRUSHES = listOf(
-    Brush("pen", "Pen"),
-    Brush("marker", "Marker"),
-    Brush("glow", "Glow"),
-    Brush("outline", "Outline"),
-    Brush("dashed", "Dashed"),
-    Brush("dotted", "Dotted"),
-    Brush("chalk", "Chalk"),
-    Brush("arrow", "Arrow"),
-    Brush("hearts", "Hearts", pattern = true),
-    Brush("stars", "Stars", pattern = true),
-    Brush("bubbles", "Bubbles", pattern = true),
-    Brush("rainbow", "Rainbow", pattern = true),
+    Brush("pen", "画笔"),
+    Brush("marker", "马克笔"),
+    Brush("glow", "发光"),
+    Brush("outline", "描边"),
+    Brush("dashed", "虚线"),
+    Brush("dotted", "点线"),
+    Brush("chalk", "粉笔"),
+    Brush("arrow", "箭头"),
+    Brush("hearts", "爱心", pattern = true),
+    Brush("stars", "星星", pattern = true),
+    Brush("bubbles", "气泡", pattern = true),
+    Brush("rainbow", "彩虹", pattern = true),
 )
 
 /** [stroke]'s points scaled to a [w] by [h] picture, as a path. */
@@ -326,12 +326,12 @@ fun DrawPanel(vm: EditorViewModel) {
             val file = withContext(Threads.thumbnails) { render(vm.path, t.width.toInt(), t.height.toInt()) }
             Drawing.strokes.clear()
             vm.panel = null
-            if (file == null) vm.message = "Could not keep the drawing" else vm.addDrawing(file)
+            if (file == null) vm.message = "无法保存绘图" else vm.addDrawing(file)
         }
     }
-    PanelFrame("Draw", vm, height = 290.dp, titleOnTop = true, header = {
+    PanelFrame("涂鸦", vm, height = 290.dp, titleOnTop = true, header = {
         Row(Modifier.padding(start = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            listOf("Basic", "Pattern").forEachIndexed { i, name ->
+            listOf("基础", "图案").forEachIndexed { i, name ->
                 Text(
                     name,
                     style = Type.Body.copy(
@@ -346,7 +346,7 @@ fun DrawPanel(vm: EditorViewModel) {
             Box(
                 Modifier.size(40.dp).clickable(enabled = Drawing.strokes.isNotEmpty()) { Drawing.strokes.removeAt(Drawing.strokes.lastIndex) },
                 contentAlignment = Alignment.Center,
-            ) { Glyph(LucideIcons.Undo2, if (Drawing.strokes.isEmpty()) Palette.Disabled else Palette.DockText, size = 20.dp, description = "Undo the last stroke") }
+            ) { Glyph(LucideIcons.Undo2, if (Drawing.strokes.isEmpty()) Palette.Disabled else Palette.DockText, size = 20.dp, description = "撤销上一步笔画") }
         }
     }, onDone = ::finish) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp)) {
@@ -366,7 +366,7 @@ fun DrawPanel(vm: EditorViewModel) {
                 Drawing.erasing = false
             }
             Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                listOf("Size", "Opacity").forEachIndexed { i, name ->
+                listOf("大小", "不透明度").forEachIndexed { i, name ->
                     Text(
                         name,
                         style = Type.Small.copy(fontSize = 13.sp, color = if (i == setting) Palette.Accent else Palette.TextSecondary),
@@ -379,11 +379,11 @@ fun DrawPanel(vm: EditorViewModel) {
                     Box(
                         Modifier.size(44.dp, 32.dp).background(if (!Drawing.erasing) Color(0xFF4A4A4A) else Color.Transparent).clickable { Drawing.erasing = false },
                         contentAlignment = Alignment.Center,
-                    ) { Glyph(LucideIcons.Pencil, if (!Drawing.erasing) Palette.Accent else Palette.DockText, size = 17.dp, description = "Pen") }
+                    ) { Glyph(LucideIcons.Pencil, if (!Drawing.erasing) Palette.Accent else Palette.DockText, size = 17.dp, description = "画笔") }
                     Box(
                         Modifier.size(44.dp, 32.dp).background(if (Drawing.erasing) Color(0xFF4A4A4A) else Color.Transparent).clickable { Drawing.erasing = true },
                         contentAlignment = Alignment.Center,
-                    ) { Glyph(LucideIcons.Eraser, if (Drawing.erasing) Palette.Accent else Palette.DockText, size = 17.dp, description = "Eraser") }
+                    ) { Glyph(LucideIcons.Eraser, if (Drawing.erasing) Palette.Accent else Palette.DockText, size = 17.dp, description = "橡皮擦") }
                 }
             }
             if (setting == 0) {
